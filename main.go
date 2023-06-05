@@ -2,15 +2,24 @@ package main
 
 import (
 	"fmt"
-	"klc/pkg/lang"
-	"klc/pkg/lang/tokens"
+	"klc/lang/lexer"
 )
 
-func main() {
-	token := lang.Token{
-		Name:    tokens.Identifier,
-		Literal: "foo",
-	}
+var program = `
+binsearch(...list, v) {
+  m = mid(v)
+  ? [empty list] = 0
+  ? v > list(m) = [binsearch list(m+1:) v]
+  ? v < list(m) = [binsearch list(:m) v]
+  ? 1
+}
+`
 
-	fmt.Println(token.ToString())
+func main() {
+	lex := lexer.New(program)
+
+	tokens := lex.All()
+	for _, token := range tokens {
+		fmt.Println(token.ToString())
+	}
 }
