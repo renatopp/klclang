@@ -475,7 +475,13 @@ func (l *Lexer) parseIdentifier() *token.Token {
 		c = l.char()
 	}
 
-	return token.Create(token.Identifier, l.sbuilder.String(), pos)
+	literal := l.sbuilder.String()
+
+	if isKeyword(literal) {
+		return token.Create(token.Keyword, literal, pos)
+	}
+
+	return token.Create(token.Identifier, literal, pos)
 }
 
 // ----------------------------------------------------------------------------
@@ -531,4 +537,13 @@ func isDoubleOperator(a rune, b rune) bool {
 
 func isCompositeAssignment(a rune, b rune) bool {
 	return b == '=' && (a == '+' || a == '-' || a == '*' || a == '/')
+}
+
+func isKeyword(s string) bool {
+	switch s {
+	case "where", "fn":
+		return true
+	}
+
+	return false
 }

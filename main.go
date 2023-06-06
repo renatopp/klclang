@@ -20,9 +20,9 @@ binsearch(...list, v) {
 }
 `
 
-// var expression = `1 + 1`
-
-var expression = `1 * add()`
+var expression = `
+a = [1, 2, ['hjell']]
+`
 
 func main() {
 	lex0 := lexer.New(expression)
@@ -36,8 +36,8 @@ func main() {
 	lex := lexer.New(expression)
 	par := parser.New(lex)
 
-	root := par.Parse()
-	root.Traverse(0, func(level int, node ast.Node) {
+	prg := par.Parse()
+	prg.Root.Traverse(0, func(level int, node ast.Node) {
 		ident := strings.Repeat("  ", level)
 		fmt.Println(ident + node.String())
 	})

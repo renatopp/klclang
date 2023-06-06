@@ -19,7 +19,8 @@ const (
 	Mod            = 90
 	Unary          = 100
 	Exponentiation = 110
-	Slicing        = 120
+	Indexing       = 120
+	Chain          = 126
 	Calls          = 130
 	Grouping       = 140
 	Highest        = 1000

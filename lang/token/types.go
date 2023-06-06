@@ -10,6 +10,7 @@ const (
 	Identifier Type = "identifier" // [a-zA-Z_][a-zA-Z0-9_]*
 	Number     Type = "number"     // 123, 123.456, 123e456, -.2f
 	String     Type = "string"     // '...'
+	Keyword    Type = "keyword"    // "where"
 
 	// Comments
 	Comment Type = "comment" // "#"
