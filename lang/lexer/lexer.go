@@ -34,15 +34,24 @@ func (l *Lexer) All() []*token.Token {
 	var tokens = []*token.Token{}
 
 	for {
-		t := l.Next()
+		t := l.Current()
 		tokens = append(tokens, t)
 
 		if t.Is(token.Eof) || t.Is(token.Invalid) {
 			break
 		}
+		l.Next()
 	}
 
 	return tokens
+}
+
+func (l *Lexer) Current() *token.Token {
+	if l.cur == nil {
+		l.Next()
+	}
+
+	return l.cur
 }
 
 func (l *Lexer) Next() *token.Token {
@@ -321,6 +330,7 @@ func (l *Lexer) parseAssignment() *token.Token {
 		return token.Create(token.Arrow, "=>", pos)
 
 	} else if isDoubleOperator(left, right) {
+		l.skip()
 		return token.Create(token.Operator, string(left)+string(right), pos)
 	}
 
