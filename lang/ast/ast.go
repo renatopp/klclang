@@ -174,7 +174,7 @@ func (n *FunctionCall) Traverse(level int, fn func(int, Node)) {
 	fn(level, n)
 	n.Function.Traverse(level+1, fn)
 	for _, arg := range n.Arguments {
-		arg.Traverse(level+2, fn)
+		arg.Traverse(level+1, fn)
 	}
 }
 
