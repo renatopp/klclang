@@ -320,9 +320,10 @@ func (p *Parser) parseExpressionList() []ast.Node {
 		args = append(args, arg)
 
 		t = p.lexer.Current()
-		for t.Is(token.Comma) {
+		if t.Is(token.Comma) {
 			t = p.lexer.Next()
 		}
+		p.skipNewlines()
 	}
 
 	return args

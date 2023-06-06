@@ -19,11 +19,19 @@ binsearch = fn (...list, v) {
 `
 
 var expression = `
-
+quicksort = fn(...list) {
+  ? empty(list) : list
+  p = mid(list)
+  concat(
+    (filter list, where x < p),
+    (filter list, where x == p),
+    (filter list, where x > p)
+	)
+}
 `
 
 func main() {
-	input := program
+	input := expression
 
 	lex0 := lexer.New(input)
 	tokens := lex0.All()
