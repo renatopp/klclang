@@ -26,6 +26,7 @@ func New(input string) *Lexer {
 		cursorColumn: 1,
 		sbuilder:     &strings.Builder{},
 	}
+	l.skipNewlines()
 	l.next()
 	return l
 }
@@ -110,13 +111,16 @@ func (l *Lexer) next() {
 		c = l.char()
 	}
 
+	for c == '#' {
+		l.parseComment()
+		c = l.char()
+	}
+
 	switch c {
 	case 0: // eof
 		t = l.parseEof()
 	case '\n':
 		t = l.parseNewline()
-	case '#':
-		t = l.parseComment()
 	case '{':
 		t = l.parseLbrace()
 	case '}':
@@ -203,6 +207,21 @@ func (l *Lexer) skipIgnored() {
 	}
 }
 
+func (l *Lexer) skipNewlines() {
+	for {
+		c := l.char()
+		if c == '\n' {
+			l.skip()
+			l.cursorLine++
+			l.cursorColumn = 1
+		} else if isIgnored(c) {
+			l.skip()
+		} else {
+			break
+		}
+	}
+}
+
 func (l *Lexer) parseEof() *token.Token {
 	t := token.Create(token.Eof, "", l.at())
 	l.eof = t
@@ -219,6 +238,9 @@ func (l *Lexer) parseNewline() *token.Token {
 	l.skip()
 	l.cursorLine++
 	l.cursorColumn = 1
+
+	l.skipNewlines()
+
 	return t
 }
 
@@ -234,12 +256,15 @@ func (l *Lexer) parseComment() *token.Token {
 	}
 
 	t.Literal = l.sbuilder.String()
+	l.skipNewlines()
+
 	return t
 }
 
 func (l *Lexer) parseLbrace() *token.Token {
 	t := token.Create(token.Lbrace, string(l.char()), l.at())
 	l.skip()
+	l.skipNewlines()
 	return t
 }
 
@@ -252,6 +277,7 @@ func (l *Lexer) parseRbrace() *token.Token {
 func (l *Lexer) parseLparen() *token.Token {
 	t := token.Create(token.Lparen, string(l.char()), l.at())
 	l.skip()
+	l.skipNewlines()
 	return t
 }
 
@@ -264,6 +290,7 @@ func (l *Lexer) parseRparen() *token.Token {
 func (l *Lexer) parseLbracket() *token.Token {
 	t := token.Create(token.Lbracket, string(l.char()), l.at())
 	l.skip()
+	l.skipNewlines()
 	return t
 }
 
@@ -276,18 +303,21 @@ func (l *Lexer) parseRbracket() *token.Token {
 func (l *Lexer) parseSemicolon() *token.Token {
 	t := token.Create(token.Semicolon, string(l.char()), l.at())
 	l.skip()
+	l.skipNewlines()
 	return t
 }
 
 func (l *Lexer) parseComma() *token.Token {
 	t := token.Create(token.Comma, string(l.char()), l.at())
 	l.skip()
+	l.skipNewlines()
 	return t
 }
 
 func (l *Lexer) parseColon() *token.Token {
 	t := token.Create(token.Colon, string(l.char()), l.at())
 	l.skip()
+	l.skipNewlines()
 	return t
 }
 
@@ -305,10 +335,12 @@ func (l *Lexer) parseDot() *token.Token {
 
 	mid := l.char()
 	if mid != '.' {
+		l.skipNewlines()
 		return token.Create(token.Dot, string(left), l.at())
 	}
 
 	l.skip()
+
 	right := l.char()
 	if right != '.' {
 		return l.parseInvalid()
@@ -360,13 +392,16 @@ func (l *Lexer) parseOperator() *token.Token {
 		right := l.char()
 		if isDoubleOperator(left, right) {
 			l.skip()
+			l.skipNewlines()
 			return token.Create(token.Operator, string(left)+string(right), pos)
 		}
 		if isCompositeAssignment(left, right) {
 			l.skip()
+			l.skipNewlines()
 			return token.Create(token.Assignment, string(left), pos)
 		}
 
+		l.skipNewlines()
 		return token.Create(token.Operator, string(left), pos)
 	}
 

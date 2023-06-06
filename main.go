@@ -9,23 +9,23 @@ import (
 )
 
 var program = `
-list.sort()
-a = x => {}
-binsearch(...list, v) {
+binsearch = fn (...list, v) {
   m = mid(v)
-  ? [empty list] = 0
-  ? v > list(m) = [binsearch list(m+1:) v]
-  ? v < list(m) = [binsearch list(:m) v]
+  ? empty list: 0
+  ? v > list(m): binsearch list[m+1:], v
+  ? v < list(m): binsearch list[:m], v
   ? 1
 }
 `
 
 var expression = `
-a = [1, 2, ['hjell']]
+
 `
 
 func main() {
-	lex0 := lexer.New(expression)
+	input := program
+
+	lex0 := lexer.New(input)
 	tokens := lex0.All()
 	for _, token := range tokens {
 		fmt.Println(token.ToString())
@@ -33,7 +33,7 @@ func main() {
 
 	fmt.Println("--------------")
 
-	lex := lexer.New(expression)
+	lex := lexer.New(input)
 	par := parser.New(lex)
 
 	prg := par.Parse()

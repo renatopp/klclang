@@ -45,6 +45,8 @@ func priorityOf(t *token.Token) int {
 		return order.Indexing
 	case token.Dot:
 		return order.Chain
+	case token.Question:
+		return order.Conditional
 	default:
 		return order.Lowest
 	}
@@ -83,6 +85,12 @@ func New(l *lexer.Lexer) *Parser {
 		token.Lbracket:   p.parseIndexing,
 		token.Assignment: p.parseAssignment,
 		token.Dot:        p.parseChain,
+		token.Question:   p.parseIfTernary,
+
+		token.Number:     p.parseMagicFunction,
+		token.String:     p.parseMagicFunction,
+		token.Identifier: p.parseMagicFunction,
+		token.Keyword:    p.parseMagicFunction,
 	}
 
 	return p
@@ -109,6 +117,13 @@ func (p *Parser) expectNext(t token.Type) {
 // ----------------------------------------------------------------------------
 // PARSING
 // ----------------------------------------------------------------------------
+func (p *Parser) skipNewlines() {
+	t := p.lexer.Current()
+	for t.Is(token.Newline) {
+		t = p.lexer.Next()
+	}
+}
+
 func (p *Parser) parseBlock() ast.Node {
 	block := &ast.Block{}
 
@@ -138,7 +153,7 @@ func (p *Parser) parseStatement() ast.Node {
 		t = p.lexer.Next()
 	}
 
-	if t.Is(token.Eof) {
+	if t.Is(token.Eof) || t.Is(token.Rbrace) {
 		return nil
 	} else if t.Is(token.Lbrace) {
 		return p.parseBlock()
@@ -167,15 +182,11 @@ func (p *Parser) parseIfReturn() ast.Node {
 	}
 
 	t := p.lexer.Current()
-	if !t.Is(token.Assignment) {
+	if !t.Is(token.Colon) {
 		return &ast.IfReturn{
 			Condition: ast.TrueCondition(),
 			Return:    cond,
 		}
-	}
-
-	if t.Literal != "=" {
-		panic("expected assignment, got " + t.ToString())
 	}
 
 	p.lexer.Next()
@@ -190,12 +201,31 @@ func (p *Parser) parseIfReturn() ast.Node {
 	}
 }
 
+func (p *Parser) parseIfTernary(left ast.Node) ast.Node {
+	p.lexer.Next()
+	t := p.parseExpression(order.Lowest)
+	if t == nil {
+		panic("invalid expression " + p.lexer.Current().ToString())
+	}
+
+	p.skipNewlines()
+	p.expect(token.Colon)
+
+	p.lexer.Next()
+	f := p.parseExpression(order.Lowest)
+	if f == nil {
+		panic("invalid expression " + p.lexer.Current().ToString())
+	}
+
+	return &ast.Conditional{
+		Condition: left,
+		True:      t,
+		False:     f,
+	}
+}
+
 func (p *Parser) parseExpression(priority int) ast.Node {
 	t := p.lexer.Current()
-
-	for t.Is(token.Newline) {
-		t = p.lexer.Next()
-	}
 
 	prefix := p.prefixes[t.Type]
 	if prefix == nil {
@@ -205,9 +235,6 @@ func (p *Parser) parseExpression(priority int) ast.Node {
 	root := prefix()
 
 	nt := p.lexer.Current()
-	for nt.Is(token.Newline) {
-		nt = p.lexer.Next()
-	}
 	for !isEndOfExpression(nt) && priorityOf(nt) >= priority {
 		infix := p.infixes[nt.Type]
 		if infix == nil {
@@ -274,6 +301,7 @@ func (p *Parser) parseUnaryOperator() ast.Node {
 func (p *Parser) parseGrouping() ast.Node {
 	p.lexer.Next()
 	node := p.parseExpression(order.Lowest)
+	p.skipNewlines()
 	p.expect(token.Rparen)
 	p.lexer.Next()
 	return node
@@ -284,10 +312,6 @@ func (p *Parser) parseExpressionList() []ast.Node {
 	args := make([]ast.Node, 0)
 
 	for {
-		for t.Is(token.Newline) {
-			t = p.lexer.Next()
-		}
-
 		arg := p.parseExpression(order.Lowest)
 		if arg == nil {
 			break
@@ -535,6 +559,21 @@ func (p *Parser) parseChain(left ast.Node) ast.Node {
 	return &ast.Chain{
 		Left:  left,
 		Right: right,
+	}
+}
+
+func (p *Parser) parseMagicFunction(left ast.Node) ast.Node {
+	switch left.(type) {
+	case *ast.Identifier:
+	default:
+		panic("invalid magic function " + left.String())
+	}
+
+	args := p.parseExpressionList()
+
+	return &ast.FunctionCall{
+		Function:  left,
+		Arguments: args,
 	}
 }
 
