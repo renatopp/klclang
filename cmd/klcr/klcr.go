@@ -5,25 +5,25 @@ import (
 	"klc/lang/ast"
 	"klc/lang/eval"
 	"klc/lang/lexer"
+	"klc/lang/obj"
 	"klc/lang/parser"
 	"strings"
 
 	"github.com/c-bata/go-prompt"
 )
 
-func completer(d prompt.Document) []prompt.Suggest {
-	s := []prompt.Suggest{
-		{Text: "users", Description: "Store the username and age"},
-		{Text: "articles", Description: "Store the article text posted by user"},
-		{Text: "comments", Description: "Store the text commented to articles"},
-	}
-	return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
-}
-
 func main() {
-	for {
+	eval := eval.New()
 
-		line := prompt.Input("> ", completer)
+	for {
+		line := prompt.Input("> ", func(d prompt.Document) []prompt.Suggest {
+			s := make([]prompt.Suggest, 0)
+			eval.Env.ForEach(func(name string, val obj.Object) {
+				s = append(s, prompt.Suggest{Text: name, Description: val.AsString()})
+			})
+
+			return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
+		})
 
 		if line == "#exit" {
 			break
