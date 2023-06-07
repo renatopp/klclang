@@ -14,6 +14,9 @@ type Program struct {
 	Root Node
 }
 
+// ----------------------------------------------------------------------------
+// BLOCK
+// ----------------------------------------------------------------------------
 type Block struct {
 	Statements []Node
 }
@@ -29,6 +32,9 @@ func (n *Block) Traverse(level int, fn func(int, Node)) {
 	}
 }
 
+// ----------------------------------------------------------------------------
+// IDENTIFIER
+// ----------------------------------------------------------------------------
 type Identifier struct {
 	Token *token.Token
 	Value string
@@ -42,6 +48,9 @@ func (n *Identifier) Traverse(level int, fn func(int, Node)) {
 	fn(level, n)
 }
 
+// ----------------------------------------------------------------------------
+// NUMBER
+// ----------------------------------------------------------------------------
 type Number struct {
 	Token *token.Token
 	Value float64
@@ -55,6 +64,9 @@ func (n *Number) Traverse(level int, fn func(int, Node)) {
 	fn(level, n)
 }
 
+// ----------------------------------------------------------------------------
+// STRING
+// ----------------------------------------------------------------------------
 type String struct {
 	Token *token.Token
 	Value string
@@ -68,6 +80,9 @@ func (n *String) Traverse(level int, fn func(int, Node)) {
 	fn(level, n)
 }
 
+// ----------------------------------------------------------------------------
+// LIST
+// ----------------------------------------------------------------------------
 type List struct {
 	Values []Node
 }
@@ -83,6 +98,9 @@ func (n *List) Traverse(level int, fn func(int, Node)) {
 	}
 }
 
+// ----------------------------------------------------------------------------
+// BINARYOPERATION
+// ----------------------------------------------------------------------------
 type BinaryOperation struct {
 	Token *token.Token
 	Left  Node
@@ -99,6 +117,9 @@ func (n *BinaryOperation) Traverse(level int, fn func(int, Node)) {
 	n.Right.Traverse(level+1, fn)
 }
 
+// ----------------------------------------------------------------------------
+// UNARYOPERATION
+// ----------------------------------------------------------------------------
 type UnaryOperation struct {
 	Token *token.Token
 	Right Node
@@ -113,6 +134,9 @@ func (n *UnaryOperation) Traverse(level int, fn func(int, Node)) {
 	n.Right.Traverse(level+1, fn)
 }
 
+// ----------------------------------------------------------------------------
+// ASSIGNMENT
+// ----------------------------------------------------------------------------
 type Assignment struct {
 	Token      *token.Token
 	Identifier Node
@@ -129,6 +153,9 @@ func (n *Assignment) Traverse(level int, fn func(int, Node)) {
 	n.Expression.Traverse(level+1, fn)
 }
 
+// ----------------------------------------------------------------------------
+// IFRETURN
+// ----------------------------------------------------------------------------
 type IfReturn struct {
 	Condition Node
 	Return    Node
@@ -144,6 +171,9 @@ func (n *IfReturn) Traverse(level int, fn func(int, Node)) {
 	n.Return.Traverse(level+1, fn)
 }
 
+// ----------------------------------------------------------------------------
+// CONDITIONAL
+// ----------------------------------------------------------------------------
 type Conditional struct {
 	Condition Node
 	True      Node
@@ -161,6 +191,9 @@ func (n *Conditional) Traverse(level int, fn func(int, Node)) {
 	n.False.Traverse(level+1, fn)
 }
 
+// ----------------------------------------------------------------------------
+// FUNCTIONCALL
+// ----------------------------------------------------------------------------
 type FunctionCall struct {
 	Function  Node
 	Arguments []Node
@@ -178,6 +211,9 @@ func (n *FunctionCall) Traverse(level int, fn func(int, Node)) {
 	}
 }
 
+// ----------------------------------------------------------------------------
+// INDEX
+// ----------------------------------------------------------------------------
 type Index struct {
 	Target Node
 	Value  Node
@@ -193,6 +229,9 @@ func (n *Index) Traverse(level int, fn func(int, Node)) {
 	n.Value.Traverse(level+1, fn)
 }
 
+// ----------------------------------------------------------------------------
+// SLICE
+// ----------------------------------------------------------------------------
 type Slice struct {
 	Target Node
 	From   Node
@@ -210,6 +249,9 @@ func (n *Slice) Traverse(level int, fn func(int, Node)) {
 	n.To.Traverse(level+1, fn)
 }
 
+// ----------------------------------------------------------------------------
+// FUNCTIONDEF
+// ----------------------------------------------------------------------------
 type FunctionDef struct {
 	Params []Node
 	Block  Node
@@ -227,6 +269,9 @@ func (n *FunctionDef) Traverse(level int, fn func(int, Node)) {
 	n.Block.Traverse(level+1, fn)
 }
 
+// ----------------------------------------------------------------------------
+// DEFAULTARG
+// ----------------------------------------------------------------------------
 type DefaultArg struct {
 	Identifier Node
 	Value      Node
@@ -242,6 +287,9 @@ func (n *DefaultArg) Traverse(level int, fn func(int, Node)) {
 	n.Value.Traverse(level+1, fn)
 }
 
+// ----------------------------------------------------------------------------
+// SPREADARG
+// ----------------------------------------------------------------------------
 type SpreadArg struct {
 	Identifier Node
 }
@@ -255,6 +303,9 @@ func (n *SpreadArg) Traverse(level int, fn func(int, Node)) {
 	n.Identifier.Traverse(level+1, fn)
 }
 
+// ----------------------------------------------------------------------------
+// CHAIN
+// ----------------------------------------------------------------------------
 type Chain struct {
 	Left  Node
 	Right Node
@@ -270,7 +321,9 @@ func (n *Chain) Traverse(level int, fn func(int, Node)) {
 	n.Right.Traverse(level+1, fn)
 }
 
-// --
+// ----------------------------------------------------------------------------
+// HELPERS
+// ----------------------------------------------------------------------------
 
 func TrueCondition() Node {
 	return &Number{

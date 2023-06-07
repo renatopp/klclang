@@ -1,48 +1,31 @@
 package obj
 
-import "fmt"
-
 type Type string
 
 const (
-	TNumber Type = "number"
-	TString      = "string"
+	TNumber   Type = "number"
+	TString        = "string"
+	TFunction      = "function"
+	TList          = "list"
 )
 
 type Object interface {
 	Type() Type
-	Inspect() string
-	Bool() bool
+	AsString() string
+	AsBool() bool
+	AsNumber() float64
+	SetDoc(string)
+	GetDoc() string
 }
 
-type Number struct {
-	Value float64
+type BaseObject struct {
+	doc string
 }
 
-func (n *Number) Type() Type {
-	return TNumber
+func (o *BaseObject) SetDoc(doc string) {
+	o.doc = doc
 }
 
-func (n *Number) Inspect() string {
-	return fmt.Sprintf("%f", n.Value)
-}
-
-func (n *Number) Bool() bool {
-	return n.Value != 0
-}
-
-type String struct {
-	Value string
-}
-
-func (n *String) Type() Type {
-	return TString
-}
-
-func (n *String) Inspect() string {
-	return n.Value
-}
-
-func (n *String) Bool() bool {
-	return n.Value != ""
+func (o *BaseObject) GetDoc() string {
+	return o.doc
 }

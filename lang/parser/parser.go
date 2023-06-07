@@ -131,8 +131,12 @@ func (p *Parser) error(t *token.Token, msg string, a ...any) {
 	} else {
 		msg = fmt.Sprintf("ERR! %s", msg)
 	}
+	p.errors = append(p.errors, msg)
+
+	// if len(p.errors) > 10 {
+	// 	panic(errors.New("too many errors"))
+	// }
 	panic(msg)
-	// p.errors = append(p.errors, msg)
 }
 
 func (p *Parser) expect(t token.Type) {
@@ -324,7 +328,8 @@ func (p *Parser) parseUnaryOperator() ast.Node {
 	p.lexer.Next()
 
 	if !isUnary(t) {
-		panic("invalid unary operator " + t.ToString())
+		p.error(t, "invalid unary operator "+t.ToString())
+		return nil
 	}
 
 	node := &ast.UnaryOperation{
@@ -369,7 +374,8 @@ func (p *Parser) parseExpressionList() []ast.Node {
 
 func (p *Parser) parseAssignment(left ast.Node) ast.Node {
 	if !isValidLeftAssignment(left) {
-		panic("invalid left assignment " + left.String())
+		p.error(p.lexer.Current(), "invalid left assignment "+left.String())
+		return nil
 	}
 
 	id := left
@@ -380,7 +386,8 @@ func (p *Parser) parseAssignment(left ast.Node) ast.Node {
 	exp := p.parseExpression(order.Lowest)
 
 	if exp == nil {
-		panic("invalid expression " + p.lexer.Current().ToString())
+		p.error(p.lexer.Current(), "invalid expression "+p.lexer.Current().ToString())
+		return nil
 	}
 
 	return &ast.Assignment{
@@ -463,7 +470,8 @@ func (p *Parser) parseKeyword() ast.Node {
 	case "fn":
 		return p.parseFnFunction()
 	default:
-		panic("invalid keyword " + t.ToString())
+		p.error(t, "invalid keyword "+t.ToString())
+		return nil
 	}
 }
 
@@ -485,7 +493,8 @@ func (p *Parser) parseWhereFunction() ast.Node {
 
 	block := p.parseExpression(order.Lowest)
 	if block == nil {
-		panic("invalid expression " + p.lexer.Current().ToString())
+		p.error(p.lexer.Current(), "invalid expression "+p.lexer.Current().ToString())
+		return nil
 	}
 
 	return &ast.FunctionDef{
@@ -582,7 +591,8 @@ func (p *Parser) parseLiteral() ast.Node {
 	case token.String:
 		return p.parseString()
 	default:
-		panic("invalid literal " + t.ToString())
+		p.error(t, "invalid literal "+t.ToString())
+		return nil
 	}
 }
 
@@ -592,7 +602,8 @@ func (p *Parser) parseChain(left ast.Node) ast.Node {
 	p.expect(token.Identifier)
 	right := p.parseExpression(order.Chain)
 	if right == nil {
-		panic("invalid expression " + p.lexer.Current().ToString())
+		p.error(p.lexer.Current(), "invalid expression "+p.lexer.Current().ToString())
+		return nil
 	}
 
 	return &ast.Chain{
@@ -605,7 +616,8 @@ func (p *Parser) parseMagicFunction(left ast.Node) ast.Node {
 	switch left.(type) {
 	case *ast.Identifier:
 	default:
-		panic("invalid magic function " + left.String())
+		p.error(p.lexer.Current(), "invalid magic function "+left.String())
+		return nil
 	}
 
 	args := p.parseExpressionList()

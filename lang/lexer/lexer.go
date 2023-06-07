@@ -15,6 +15,7 @@ type Lexer struct {
 
 	queue []*token.Token
 	cur   *token.Token
+	prv   *token.Token
 
 	sbuilder *strings.Builder
 }
@@ -25,6 +26,7 @@ func New(input string) *Lexer {
 		cursorLine:   1,
 		cursorColumn: 1,
 		sbuilder:     &strings.Builder{},
+		prv:          nil,
 	}
 	l.skipNewlines()
 	l.next()
@@ -47,6 +49,10 @@ func (l *Lexer) All() []*token.Token {
 	return tokens
 }
 
+func (l *Lexer) Previous() *token.Token {
+	return l.prv
+}
+
 func (l *Lexer) Current() *token.Token {
 	if l.cur == nil {
 		l.Next()
@@ -57,6 +63,7 @@ func (l *Lexer) Current() *token.Token {
 
 func (l *Lexer) Next() *token.Token {
 	if len(l.queue) > 0 {
+		l.prv = l.cur
 		l.cur = l.queue[0]
 		l.queue = l.queue[1:]
 
@@ -194,6 +201,10 @@ func (l *Lexer) char() rune {
 }
 
 func (l *Lexer) peekChar(i int) rune {
+	if (l.cursor + i) < 0 {
+		return 0
+	}
+
 	if (l.cursor + i) >= len(l.input) {
 		return 0
 	}
@@ -497,6 +508,12 @@ func (l *Lexer) parseNumber() *token.Token {
 }
 
 func (l *Lexer) parseIdentifier() *token.Token {
+	prv := l.Current()
+
+	if prv != nil && prv.Is(token.Number) && isDigit(l.peekChar(-1)) {
+		return token.Create(token.Operator, "*", l.at())
+	}
+
 	l.sbuilder.Reset()
 	pos := l.at()
 

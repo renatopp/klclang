@@ -30,7 +30,7 @@ quicksort = fn(...list) {
 }
 `
 
-var testing = ","
+var testing = "2a"
 
 func main() {
 	input := testing

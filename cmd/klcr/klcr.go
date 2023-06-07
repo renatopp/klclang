@@ -25,17 +25,18 @@ func main() {
 
 		line := prompt.Input("> ", completer)
 
-		if line == "# exit" {
+		if line == "#exit" {
 			break
-		} else if line == "# clear" {
+		} else if line == "#clear" {
 			fmt.Print("\033[H\033[2J")
 			continue
-		} else if line == "# help" {
-			fmt.Println("Type '# exit' to exit")
-			fmt.Println("Type '# clear' to clear screen")
+		} else if line == "#help" {
+			fmt.Println("Type '#exit' to exit")
+			fmt.Println("Type '#clear' to clear screen")
+			fmt.Println("Type '@<epxression>' to see the AST")
 			continue
-		} else if strings.HasPrefix(line, "@ ") {
-			line = line[2:]
+		} else if strings.HasPrefix(line, "@") {
+			line = line[1:]
 			l := lexer.New(line)
 			p := parser.New(l)
 			prg, err := p.Parse()
@@ -65,11 +66,11 @@ func main() {
 		}
 
 		if e != nil {
-			fmt.Println(e.Inspect())
+			fmt.Println(e.AsString())
 		}
 	}
 }
 
 func printE(err error) {
-	fmt.Println(err.Error())
+	fmt.Println("!", err.Error())
 }
