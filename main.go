@@ -30,8 +30,10 @@ quicksort = fn(...list) {
 }
 `
 
+var testing = ","
+
 func main() {
-	input := expression
+	input := testing
 
 	lex0 := lexer.New(input)
 	tokens := lex0.All()
@@ -44,7 +46,12 @@ func main() {
 	lex := lexer.New(input)
 	par := parser.New(lex)
 
-	prg := par.Parse()
+	prg, err := par.Parse()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	prg.Root.Traverse(0, func(level int, node ast.Node) {
 		ident := strings.Repeat("  ", level)
 		fmt.Println(ident + node.String())

@@ -90,7 +90,7 @@ type BinaryOperation struct {
 }
 
 func (n *BinaryOperation) String() string {
-	return fmt.Sprintf("%s", n.Token.ToString())
+	return fmt.Sprintf("<binary operator> %s", n.Token.ToString())
 }
 
 func (n *BinaryOperation) Traverse(level int, fn func(int, Node)) {
@@ -105,7 +105,7 @@ type UnaryOperation struct {
 }
 
 func (n *UnaryOperation) String() string {
-	return fmt.Sprintf("%s", n.Token.ToString())
+	return fmt.Sprintf("<unary operator> %s", n.Token.ToString())
 }
 
 func (n *UnaryOperation) Traverse(level int, fn func(int, Node)) {

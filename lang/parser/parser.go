@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"errors"
+	"fmt"
 	"klc/lang/ast"
 	"klc/lang/lexer"
 	"klc/lang/parser/order"
@@ -60,13 +62,15 @@ type Parser struct {
 	root     *ast.Program
 	prefixes map[token.Type]prefixFn
 	infixes  map[token.Type]infixFn
+
+	errors []string
 }
 
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{
-		lexer:   l,
-		root:    &ast.Program{},
-		infixes: make(map[token.Type]infixFn),
+		lexer:  l,
+		root:   &ast.Program{},
+		errors: make([]string, 0),
 	}
 
 	p.prefixes = map[token.Type]prefixFn{
@@ -96,21 +100,52 @@ func New(l *lexer.Lexer) *Parser {
 	return p
 }
 
-func (p *Parser) Parse() *ast.Program {
-	prg := &ast.Program{}
+func (p *Parser) Parse() (prg *ast.Program, err error) {
+	prg = &ast.Program{}
+
+	defer func() {
+		if r := recover(); r != nil {
+			prg = nil
+			err = errors.New(fmt.Sprintf("%v", r))
+		}
+	}()
+
 	prg.Root = p.parseBlock()
-	return prg
+
+	if len(p.errors) > 0 {
+		errs := make([]error, len(p.errors))
+		for i, e := range p.errors {
+			errs[i] = errors.New(e)
+		}
+
+		return nil, errors.Join(errs...)
+	}
+
+	return prg, nil
+}
+
+func (p *Parser) error(t *token.Token, msg string, a ...any) {
+	msg = fmt.Sprintf(msg, a...)
+	if t != nil {
+		msg = fmt.Sprintf("ERR! [%d,%d] %s", t.At.Line, t.At.Column, msg)
+	} else {
+		msg = fmt.Sprintf("ERR! %s", msg)
+	}
+	panic(msg)
+	// p.errors = append(p.errors, msg)
 }
 
 func (p *Parser) expect(t token.Type) {
-	if !p.lexer.Current().Is(t) {
-		panic("expected " + string(t) + ", got " + p.lexer.Current().ToString())
+	c := p.lexer.Current()
+	if !c.Is(t) {
+		p.error(c, "expected token to be %s, got %s instead", t, c.Type)
 	}
 }
 
 func (p *Parser) expectNext(t token.Type) {
-	if !p.lexer.Peek().Is(t) {
-		panic("expected " + string(t) + ", got " + p.lexer.Peek().ToString())
+	c := p.lexer.Next()
+	if !c.Is(t) {
+		p.error(c, "expected token to be %s, got %s instead", t, c.Type)
 	}
 }
 
@@ -164,11 +199,14 @@ func (p *Parser) parseStatement() ast.Node {
 	e := p.parseExpression(order.Lowest)
 
 	if e == nil {
-		panic("invalid token " + t.ToString())
+		p.error(t, "invalid token '%s'", t.Literal)
+		return nil
 	}
 
 	if !isEndOfStatement(p.lexer.Current()) {
-		panic("expected end of statement, got " + p.lexer.Current().ToString())
+		z := p.lexer.Current()
+		p.error(z, "unexpected token '%s'", z)
+		return nil
 	}
 
 	return e
