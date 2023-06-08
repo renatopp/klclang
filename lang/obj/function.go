@@ -1,7 +1,32 @@
 package obj
 
+import (
+	"klc/lang/ast"
+	"strings"
+)
+
+type FunctionParam struct {
+	Name    string
+	Default Object
+	Spread  bool
+}
+
+func (n *FunctionParam) String(builder *strings.Builder) {
+	if n.Spread {
+		builder.WriteString("...")
+	}
+	builder.WriteString(n.Name)
+	if n.Default != nil {
+		builder.WriteString(" = ")
+		builder.WriteString(n.Default.AsString())
+	}
+}
+
 type Function struct {
 	BaseObject
+
+	Params []*FunctionParam
+	Body   ast.Node
 }
 
 func (n *Function) Type() Type {
@@ -9,13 +34,21 @@ func (n *Function) Type() Type {
 }
 
 func (n *Function) AsString() string {
-	return "NOT IMPLEMENTED"
+	builder := strings.Builder{}
+	builder.WriteString("fn (")
+	for i, p := range n.Params {
+		p.String(&builder)
+		if i < len(n.Params)-1 {
+			builder.WriteString(", ")
+		}
+	}
+	builder.WriteString(") { ... }")
+
+	return builder.String()
 }
 
 func (n *Function) AsBool() bool {
-	// evaluate?
-	// return n.Value
-	return false
+	return true
 }
 
 func (n *Function) AsNumber() float64 {

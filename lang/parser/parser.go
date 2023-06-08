@@ -194,6 +194,9 @@ func (p *Parser) parseStatement() ast.Node {
 
 	if t.Is(token.Eof) || t.Is(token.Rbrace) {
 		return nil
+	} else if t.Is(token.Semicolon) {
+		t = p.lexer.Next()
+		return nil
 	} else if t.Is(token.Lbrace) {
 		return p.parseBlock()
 	} else if t.Is(token.Question) {
@@ -499,9 +502,18 @@ func (p *Parser) parseWhereFunction() ast.Node {
 
 	return &ast.FunctionDef{
 		Params: []ast.Node{
-			ast.Id("x"),
-			ast.Id("y"),
-			ast.Id("z"),
+			&ast.DefaultArg{
+				Identifier: ast.Id("x"),
+				Value:      ast.Zero(),
+			},
+			&ast.DefaultArg{
+				Identifier: ast.Id("y"),
+				Value:      ast.Zero(),
+			},
+			&ast.DefaultArg{
+				Identifier: ast.Id("z"),
+				Value:      ast.Zero(),
+			},
 		},
 		Block: block,
 	}

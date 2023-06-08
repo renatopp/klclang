@@ -18,8 +18,8 @@ func main() {
 	for {
 		line := prompt.Input("> ", func(d prompt.Document) []prompt.Suggest {
 			s := make([]prompt.Suggest, 0)
-			eval.Env.ForEach(func(name string, val obj.Object) {
-				s = append(s, prompt.Suggest{Text: name, Description: val.AsString()})
+			eval.Stack.ForEach(func(name string, val obj.Object) {
+				// s = append(s, prompt.Suggest{Text: name, Description: val.AsString()})
 			})
 
 			return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
@@ -29,6 +29,9 @@ func main() {
 			break
 		} else if line == "#clear" {
 			fmt.Print("\033[H\033[2J")
+			continue
+		} else if line == "#stack" {
+			eval.Stack.Print()
 			continue
 		} else if line == "#help" {
 			fmt.Println("Type '#exit' to exit")

@@ -15,11 +15,13 @@ var FALSE = &obj.Number{Value: 0}
 const DEBUG = false
 
 type Evaluator struct {
-	Env *Environment
+	Stack *EnvironmentStack
 }
 
 func New() *Evaluator {
-	return &Evaluator{Env: NewEnvironment()}
+	return &Evaluator{
+		Stack: NewStack(),
+	}
 }
 
 func (e *Evaluator) debug(a ...any) {
@@ -75,6 +77,18 @@ func (e *Evaluator) Eval(n ast.Node) obj.Object {
 		right := e.Eval(node.Right)
 		return e.evalBinaryOperation(node, left, right)
 
+	case *ast.IfReturn:
+		return e.evalIfReturn(node)
+
+	case *ast.Conditional:
+		return e.evalIfTrueFalse(node)
+
+	case *ast.FunctionDef:
+		return e.evalFuncDef(node)
+
+	case *ast.FunctionCall:
+		return e.evalFuncCall(node)
+
 	default:
 		e.throw("node not implemented: " + n.String())
 	}
@@ -109,6 +123,133 @@ func (e *Evaluator) evalString(n *ast.String) obj.Object {
 }
 
 // ----------------------------------------------------------------------------
+// FUNCTIONS
+// ----------------------------------------------------------------------------
+func (e *Evaluator) evalFuncDef(n *ast.FunctionDef) obj.Object {
+	pms := make([]*obj.FunctionParam, len(n.Params))
+	hasSpread := false
+	hasDefault := false
+	for i, v := range n.Params {
+		p := &obj.FunctionParam{}
+		f := false
+		for !f {
+			switch node := v.(type) {
+			case *ast.Identifier:
+				p.Name = node.Value
+				f = true
+
+			case *ast.DefaultArg:
+				p.Default = e.Eval(node.Value)
+				v = node.Identifier
+
+			case *ast.SpreadArg:
+				p.Spread = true
+				v = node.Identifier
+
+			default:
+				f = true
+			}
+		}
+
+		if p.Spread && p.Default != nil {
+			e.throw("spread arguments cannot have default values: '%s'", p.Name)
+			return nil
+		}
+
+		if p.Spread {
+			if hasSpread {
+				e.throw("only one spread argument is allowed: '%s'", p.Name)
+				return nil
+			}
+
+			hasSpread = true
+		}
+
+		if p.Default != nil {
+			if hasSpread {
+				e.throw("default arguments cannot proceed spread arguments: '%s'", p.Name)
+				return nil
+			}
+			hasDefault = true
+		} else if hasDefault {
+			e.throw("default arguments must be at the end")
+			return nil
+		}
+
+		pms[i] = p
+	}
+
+	return &obj.Function{
+		Params: pms,
+		Body:   n.Block,
+	}
+}
+
+func (e *Evaluator) evalFuncCall(n *ast.FunctionCall) obj.Object {
+	target := e.Eval(n.Function)
+
+	if target == nil {
+		e.throw("undefined identifier: %s", n.Function)
+		return nil
+	}
+
+	if target.Type() != obj.TFunction {
+		e.throw("calling a non-function")
+		return nil
+	}
+
+	args := make([]obj.Object, len(n.Arguments))
+	for i, v := range n.Arguments {
+		args[i] = e.Eval(v)
+	}
+
+	fn := target.(*obj.Function)
+
+	e.Stack.Push()
+	defer e.Stack.Pop()
+
+	tArgs := len(args)
+	tParams := len(fn.Params)
+	g := 0
+	for i, v := range fn.Params {
+		if !v.Spread {
+			var value obj.Object
+			if g >= tArgs {
+				if v.Default == nil {
+					e.throw("missing argument: %s", v.Name)
+					return nil
+				}
+				value = v.Default
+			} else {
+				value = args[g]
+			}
+
+			g++
+			e.Stack.Set(v.Name, value)
+		} else {
+			missing := tParams - i - 1
+
+			total := 0
+			sv := make([]obj.Object, 0)
+			for j := i; j < (tArgs - missing); j++ {
+				t := args[j]
+				if t.Type() == obj.TList {
+					sv = append(sv, t.(*obj.List).Values...)
+				} else {
+					sv = append(sv, t)
+				}
+				total++
+			}
+
+			g += total
+			e.Stack.Set(v.Name, &obj.List{Values: sv})
+		}
+	}
+
+	return e.Eval(fn.Body)
+}
+
+// ----------------------------------------------------------------------------
 // EVAL ASSIGNMENT
 // ----------------------------------------------------------------------------
 func (e *Evaluator) evalAssignment(n *ast.Assignment) obj.Object {
@@ -131,12 +272,12 @@ func (e *Evaluator) evalAssignment(n *ast.Assignment) obj.Object {
 }
 
 func (e *Evaluator) assignToIdentifier(id string, value obj.Object) obj.Object {
-	e.Env.Set(id, value)
+	e.Stack.Set(id, value)
 	return value
 }
 
 func (e *Evaluator) evalIdentifier(n *ast.Identifier) obj.Object {
-	r, ok := e.Env.Get(n.Value)
+	r, ok := e.Stack.Get(n.Value)
 
 	if !ok {
 		e.throw("undefined identifier: " + n.Value)
@@ -390,6 +531,30 @@ func (e *Evaluator) bopStringToString(op string, left, right *obj.String) obj.Ob
 	return nil
 }
 
+// ----------------------------------------------------------------------------
+// EVAL CONDITIONAL
+// ----------------------------------------------------------------------------
+func (e *Evaluator) evalIfReturn(n *ast.IfReturn) obj.Object {
+	cond := e.Eval(n.Condition)
+	if cond.AsBool() {
+		return e.Eval(n.Return)
+	}
+
+	return nil
+}
+
+func (e *Evaluator) evalIfTrueFalse(n *ast.Conditional) obj.Object {
+	cond := e.Eval(n.Condition)
+	if cond.AsBool() {
+		return e.Eval(n.True)
+	}
+
+	return e.Eval(n.False)
+}
+
+// ----------------------------------------------------------------------------
+// UTILS
+// ----------------------------------------------------------------------------
 func ifReturn[T any](cond bool, t, f T) T {
 	if cond {
 		return t

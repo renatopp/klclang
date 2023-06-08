@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"klc/lang/ast"
+	"klc/lang/eval"
 	"klc/lang/lexer"
 	"klc/lang/parser"
 	"strings"
@@ -30,7 +31,15 @@ quicksort = fn(...list) {
 }
 `
 
-var testing = "2a"
+var testing = `
+
+a = fn (a, ...b, c) {
+	-a ++ b ++ -c
+}
+
+a(1, [2,3,4], 1, 3)
+
+`
 
 func main() {
 	input := testing
@@ -56,5 +65,10 @@ func main() {
 		ident := strings.Repeat("  ", level)
 		fmt.Println(ident + node.String())
 	})
+
+	fmt.Println("--------------")
+
+	eval := eval.New()
+	fmt.Println(eval.Eval(prg.Root).AsString())
 
 }

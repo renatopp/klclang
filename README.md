@@ -8,14 +8,11 @@ https://github.com/skatsuta/monkey-interpreter/blob/master/parser/parser.go#L330
 - Evaluation
   - Assignment to index
   - string ++ (number|list)
-  - Control flow
-    - if return
-    - if true false
   - String interpolation
     - $<var>
     - templating? $a[2f]
   - Functions
-    - definition
     - call
-    - recursion
     - scope
+    - chain
+    - recursion
