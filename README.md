@@ -11,8 +11,5 @@ https://github.com/skatsuta/monkey-interpreter/blob/master/parser/parser.go#L330
   - String interpolation
     - $<var>
     - templating? $a[2f]
-  - Functions
-    - call
-    - scope
-    - chain
-    - recursion
+- Builtin functions
+  - all!

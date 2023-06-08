@@ -279,6 +279,10 @@ func (p *Parser) parseExpression(priority int) ast.Node {
 
 	root := prefix()
 
+	if p.lexer.Peek().Is(token.Dot) {
+		p.skipNewlines()
+	}
+
 	nt := p.lexer.Current()
 	for !isEndOfExpression(nt) && priorityOf(nt) >= priority {
 		infix := p.infixes[nt.Type]
@@ -288,6 +292,10 @@ func (p *Parser) parseExpression(priority int) ast.Node {
 
 		root = infix(root)
 		nt = p.lexer.Current()
+	}
+
+	if p.lexer.Peek().Is(token.Dot) {
+		p.skipNewlines()
 	}
 
 	return root

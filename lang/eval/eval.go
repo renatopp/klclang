@@ -14,6 +14,9 @@ var FALSE = &obj.Number{Value: 0}
 
 const DEBUG = false
 
+const CHAIN_KEY = "0_chain"
+const RETURN_KEY = "0_return"
+
 type Evaluator struct {
 	Stack *EnvironmentStack
 }
@@ -89,6 +92,9 @@ func (e *Evaluator) Eval(n ast.Node) obj.Object {
 	case *ast.FunctionCall:
 		return e.evalFuncCall(node)
 
+	case *ast.Chain:
+		return e.evalChain(node)
+
 	default:
 		e.throw("node not implemented: " + n.String())
 	}
@@ -102,7 +108,12 @@ func (e *Evaluator) evalBlock(n *ast.Block) obj.Object {
 	var result obj.Object
 	for _, stmt := range n.Statements {
 		result = e.Eval(stmt)
+
+		if _, ok := e.Stack.Get(RETURN_KEY); ok {
+			break
+		}
 	}
+	e.Stack.Delete(RETURN_KEY)
 	return result
 }
 
@@ -247,6 +258,49 @@ func (e *Evaluator) evalFuncCall(n *ast.FunctionCall) obj.Object {
 	}
 
 	return e.Eval(fn.Body)
+}
+
+func (e *Evaluator) evalChain(n *ast.Chain) obj.Object {
+	prv, ok := e.Stack.Get(CHAIN_KEY)
+
+	if ok { // piped
+		switch call := n.Left.(type) {
+		case *ast.FunctionCall:
+			fn := &ast.FunctionCall{
+				Function: call.Function,
+				Arguments: append([]ast.Node{
+					&ast.Identifier{Value: CHAIN_KEY},
+				}, call.Arguments...),
+			}
+			prv = e.Eval(fn)
+		default:
+			e.throw("unexpected chaining operation")
+			return nil
+		}
+	} else {
+		prv = e.Eval(n.Left)
+	}
+
+	e.Stack.Set(CHAIN_KEY, prv)
+	defer e.Stack.Delete(CHAIN_KEY)
+
+	switch call := n.Right.(type) {
+	case *ast.FunctionCall:
+		fn := &ast.FunctionCall{
+			Function: call.Function,
+			Arguments: append([]ast.Node{
+				&ast.Identifier{Value: CHAIN_KEY},
+			}, call.Arguments...),
+		}
+		return e.Eval(fn)
+
+	case *ast.Chain:
+		return e.evalChain(call)
+
+	default:
+		e.throw("invalid chaining operation")
+		return nil
+	}
 }
 
 // ----------------------------------------------------------------------------
@@ -537,7 +591,9 @@ func (e *Evaluator) bopStringToString(op string, left, right *obj.String) obj.Ob
 func (e *Evaluator) evalIfReturn(n *ast.IfReturn) obj.Object {
 	cond := e.Eval(n.Condition)
 	if cond.AsBool() {
-		return e.Eval(n.Return)
+		v := e.Eval(n.Return)
+		e.Stack.Set(RETURN_KEY, v)
+		return v
 	}
 
 	return nil

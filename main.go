@@ -32,13 +32,8 @@ quicksort = fn(...list) {
 `
 
 var testing = `
-
-a = fn (a, ...b, c) {
-	-a ++ b ++ -c
-}
-
-a(1, [2,3,4], 1, 3)
-
+fib = fn(n) { ? n < 2: n; fib(n-1) + fib(n-2) }
+fib(10)
 `
 
 func main() {
