@@ -4,13 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"klc/lang/ast"
+	"klc/lang/builtins"
 	"klc/lang/obj"
 	"math"
 	"strings"
 )
-
-var TRUE = &obj.Number{Value: 1}
-var FALSE = &obj.Number{Value: 0}
 
 const DEBUG = false
 
@@ -22,9 +20,13 @@ type Evaluator struct {
 }
 
 func New() *Evaluator {
-	return &Evaluator{
+	ev := &Evaluator{
 		Stack: NewStack(),
 	}
+
+	RegisterBuiltins(ev.Stack)
+
+	return ev
 }
 
 func (e *Evaluator) debug(a ...any) {
@@ -214,15 +216,16 @@ func (e *Evaluator) evalFuncCall(n *ast.FunctionCall) obj.Object {
 		args[i] = e.Eval(v)
 	}
 
-	fn := target.(*obj.Function)
+	fn := target.(obj.Callable)
+	params := fn.GetParams()
 
 	e.Stack.Push()
 	defer e.Stack.Pop()
 
 	tArgs := len(args)
-	tParams := len(fn.Params)
+	tParams := len(params)
 	g := 0
-	for i, v := range fn.Params {
+	for i, v := range params {
 		if !v.Spread {
 			var value obj.Object
 			if g >= tArgs {
@@ -257,7 +260,16 @@ func (e *Evaluator) evalFuncCall(n *ast.FunctionCall) obj.Object {
 		}
 	}
 
-	return e.Eval(fn.Body)
+	switch fun := fn.(type) {
+	case *obj.BuiltinFunction:
+		return fun.Fn(args...)
+
+	case *obj.Function:
+		return e.Eval(fun.Body)
+	}
+
+	e.throw("invalid function type")
+	return nil
 }
 
 func (e *Evaluator) evalChain(n *ast.Chain) obj.Object {
@@ -407,9 +419,9 @@ func (e *Evaluator) negate(n obj.Object) obj.Object {
 
 func (e *Evaluator) negateNumber(n *obj.Number) obj.Object {
 	if n.AsBool() {
-		return FALSE
+		return builtins.FALSE
 	}
-	return TRUE
+	return builtins.TRUE
 }
 
 func (e *Evaluator) negateList(n *obj.List) obj.Object {
@@ -422,9 +434,9 @@ func (e *Evaluator) negateList(n *obj.List) obj.Object {
 
 func (e *Evaluator) negateString(n *obj.String) obj.Object {
 	if n.AsBool() {
-		return FALSE
+		return builtins.FALSE
 	}
-	return TRUE
+	return builtins.TRUE
 }
 
 // ----------------------------------------------------------------------------
@@ -481,37 +493,37 @@ func (e *Evaluator) bopNumberToNumber(op string, left, right *obj.Number) obj.Ob
 		return &obj.Number{Value: math.Floor(left.Value / right.Value)}
 
 	case "==":
-		return ifReturn(left.Value == right.Value, TRUE, FALSE)
+		return ifReturn(left.Value == right.Value, builtins.TRUE, builtins.FALSE)
 
 	case "!=":
-		return ifReturn(left.Value != right.Value, TRUE, FALSE)
+		return ifReturn(left.Value != right.Value, builtins.TRUE, builtins.FALSE)
 
 	case ">":
-		return ifReturn(left.Value > right.Value, TRUE, FALSE)
+		return ifReturn(left.Value > right.Value, builtins.TRUE, builtins.FALSE)
 
 	case "<":
-		return ifReturn(left.Value < right.Value, TRUE, FALSE)
+		return ifReturn(left.Value < right.Value, builtins.TRUE, builtins.FALSE)
 
 	case ">=":
-		return ifReturn(left.Value >= right.Value, TRUE, FALSE)
+		return ifReturn(left.Value >= right.Value, builtins.TRUE, builtins.FALSE)
 
 	case "<=":
-		return ifReturn(left.Value <= right.Value, TRUE, FALSE)
+		return ifReturn(left.Value <= right.Value, builtins.TRUE, builtins.FALSE)
 
 	case "&&":
-		return ifReturn(left.AsBool() && right.AsBool(), TRUE, FALSE)
+		return ifReturn(left.AsBool() && right.AsBool(), builtins.TRUE, builtins.FALSE)
 
 	case "||":
-		return ifReturn(left.AsBool() || right.AsBool(), TRUE, FALSE)
+		return ifReturn(left.AsBool() || right.AsBool(), builtins.TRUE, builtins.FALSE)
 
 	case "^^":
-		return ifReturn(left.AsBool() != right.AsBool(), TRUE, FALSE)
+		return ifReturn(left.AsBool() != right.AsBool(), builtins.TRUE, builtins.FALSE)
 
 	case "!|":
-		return ifReturn(!left.AsBool() && !right.AsBool(), TRUE, FALSE)
+		return ifReturn(!left.AsBool() && !right.AsBool(), builtins.TRUE, builtins.FALSE)
 
 	case "!&":
-		return ifReturn(!left.AsBool() || !right.AsBool(), TRUE, FALSE)
+		return ifReturn(!left.AsBool() || !right.AsBool(), builtins.TRUE, builtins.FALSE)
 
 	case "++":
 		return &obj.List{Values: []obj.Object{left, right}}

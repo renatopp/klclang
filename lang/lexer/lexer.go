@@ -529,6 +529,10 @@ func (l *Lexer) parseIdentifier() *token.Token {
 
 	literal := l.sbuilder.String()
 
+	if literal == "to" {
+		return token.Create(token.Operator, "/", l.at())
+	}
+
 	if isKeyword(literal) {
 		return token.Create(token.Keyword, literal, pos)
 	}

@@ -376,8 +376,8 @@ func (p *Parser) parseExpressionList() []ast.Node {
 		t = p.lexer.Current()
 		if t.Is(token.Comma) {
 			t = p.lexer.Next()
+			p.skipNewlines()
 		}
-		p.skipNewlines()
 	}
 
 	return args
