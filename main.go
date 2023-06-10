@@ -32,11 +32,7 @@ quicksort = fn(...list) {
 `
 
 var testing2 = `
-t = 'hello'
-
-'teste'
-	.echo()
-	.exit()
+echo 1 2
 `
 
 var testing = `

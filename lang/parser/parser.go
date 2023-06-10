@@ -68,14 +68,17 @@ type Parser struct {
 	prefixes map[token.Type]prefixFn
 	infixes  map[token.Type]infixFn
 
+	magicStack []bool
+
 	errors []string
 }
 
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{
-		lexer:  l,
-		root:   &ast.Program{},
-		errors: make([]string, 0),
+		lexer:      l,
+		root:       &ast.Program{},
+		errors:     make([]string, 0),
+		magicStack: make([]bool, 0),
 	}
 
 	p.prefixes = map[token.Type]prefixFn{
@@ -156,6 +159,18 @@ func (p *Parser) expectNext(t token.Type) {
 	if !c.Is(t) {
 		p.error(c, "expected token to be %s, got %s instead", t, c.Type)
 	}
+}
+
+func (p *Parser) isUsingMagic() bool {
+	return len(p.magicStack) > 0 && p.magicStack[len(p.magicStack)-1]
+}
+
+func (p *Parser) pushMagic(b bool) {
+	p.magicStack = append(p.magicStack, b)
+}
+
+func (p *Parser) popMagic() {
+	p.magicStack = p.magicStack[:len(p.magicStack)-1]
 }
 
 // ----------------------------------------------------------------------------
@@ -303,7 +318,12 @@ func (p *Parser) parseExpression(priority int) ast.Node {
 			return root
 		}
 
-		root = infix(root)
+		nroot := infix(root)
+		if nroot == nil {
+			return root
+		}
+		root = nroot
+
 		nt = p.lexer.Current()
 	}
 
@@ -440,10 +460,12 @@ func (p *Parser) parseBinaryOperator(left ast.Node) ast.Node {
 func (p *Parser) parseFunctionCall(left ast.Node) ast.Node {
 	p.lexer.Next()
 
+	p.pushMagic(false)
 	node := &ast.FunctionCall{
 		Function:  left,
 		Arguments: p.parseExpressionList(),
 	}
+	p.popMagic()
 
 	p.expect(token.Rparen)
 	p.lexer.Next()
@@ -678,6 +700,11 @@ func (p *Parser) parseInfixKeyword(left ast.Node) ast.Node {
 }
 
 func (p *Parser) parseMagicFunction(left ast.Node) ast.Node {
+	if p.isUsingMagic() {
+		return nil
+	}
+
+	p.pushMagic(true)
 	switch left.(type) {
 	case *ast.Identifier:
 	default:
@@ -687,6 +714,7 @@ func (p *Parser) parseMagicFunction(left ast.Node) ast.Node {
 
 	args := p.parseExpressionList()
 
+	p.popMagic()
 	return &ast.FunctionCall{
 		Function:  left,
 		Arguments: args,
