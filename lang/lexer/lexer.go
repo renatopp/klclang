@@ -597,7 +597,7 @@ func isCompositeAssignment(a rune, b rune) bool {
 
 func isKeyword(s string) bool {
 	switch s {
-	case "where", "fn":
+	case "where", "fn", "is":
 		return true
 	}
 

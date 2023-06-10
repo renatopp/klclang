@@ -32,8 +32,7 @@ quicksort = fn(...list) {
 `
 
 var testing = `
-fib = fn(n) { ? n < 2: n; fib(n-1) + fib(n-2) }
-fib(10)
+2 is even
 `
 
 func main() {

@@ -49,6 +49,11 @@ func priorityOf(t *token.Token) int {
 		return order.Chain
 	case token.Question:
 		return order.Conditional
+	case token.Keyword:
+		if t.Literal == "where" || t.Literal == "is" {
+			return order.Calls
+		}
+		return order.Lowest
 	default:
 		return order.Lowest
 	}
@@ -94,7 +99,7 @@ func New(l *lexer.Lexer) *Parser {
 		token.Number:     p.parseMagicFunction,
 		token.String:     p.parseMagicFunction,
 		token.Identifier: p.parseMagicFunction,
-		token.Keyword:    p.parseMagicFunction,
+		token.Keyword:    p.parseInfixKeyword,
 	}
 
 	return p
@@ -442,6 +447,9 @@ func (p *Parser) parseIndexing(left ast.Node) ast.Node {
 	p.lexer.Next()
 
 	a := p.parseExpression(order.Lowest)
+	if a == nil {
+		p.error(p.lexer.Current(), "invalid expression "+p.lexer.Current().ToString())
+	}
 
 	t := p.lexer.Current()
 	if !t.Is(token.Colon) {
@@ -629,6 +637,35 @@ func (p *Parser) parseChain(left ast.Node) ast.Node {
 	return &ast.Chain{
 		Left:  left,
 		Right: right,
+	}
+}
+
+func (p *Parser) parseInfixKeyword(left ast.Node) ast.Node {
+	t := p.lexer.Current()
+	if t.Literal != "is" {
+		return p.parseMagicFunction(left)
+	}
+
+	p.lexer.Next()
+
+	p.expect(token.Identifier)
+	fn := p.lexer.Current()
+
+	p.lexer.Next()
+	return &ast.FunctionCall{
+		Function: &ast.Identifier{
+			Token: t,
+			Value: "boolean",
+		},
+		Arguments: []ast.Node{
+			&ast.FunctionCall{
+				Function: &ast.Identifier{
+					Token: fn,
+					Value: fn.Literal,
+				},
+				Arguments: []ast.Node{left},
+			},
+		},
 	}
 }
 

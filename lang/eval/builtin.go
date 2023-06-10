@@ -8,5 +8,11 @@ import (
 func RegisterBuiltins(s *EnvironmentStack) {
 	s.Set("echo", functions.Echo)
 	s.Set("doc", functions.Doc)
+	s.Set("type", functions.Type)
+
+	s.Set("boolean", functions.Boolean)
+	s.Set("even", functions.Even)
+	s.Set("odd", functions.Odd)
+
 	s.Set("km", constants.KM)
 }

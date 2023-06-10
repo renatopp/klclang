@@ -6,6 +6,12 @@ import (
 )
 
 func doc(args ...obj.Object) obj.Object {
+	if args[1].AsNumber() != -1 {
+		d := args[1].AsString()
+		args[0].SetDoc(d)
+		return builtins.NewString(d)
+	}
+
 	d := args[0].GetDoc()
 	if d == "" {
 		d = "No documentation available."
@@ -14,6 +20,9 @@ func doc(args ...obj.Object) obj.Object {
 }
 
 var Doc = builtins.WithDoc(
-	builtins.NewFunction(doc, builtins.NewParam("var", nil, false)),
-	`Returns the documentation for a given variable.`,
+	builtins.NewFunction(doc,
+		builtins.NewParam("var", nil, false),
+		builtins.NewParam("doc", builtins.NewNumber(-1), false),
+	),
+	`Returns the documentation for a given variable, or sets a new documentation for the variable.`,
 )
