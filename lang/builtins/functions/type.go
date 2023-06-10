@@ -5,7 +5,7 @@ import (
 	"klc/lang/obj"
 )
 
-func type_(args ...obj.Object) obj.Object {
+func type_(ev obj.Evaluator, args ...obj.Object) obj.Object {
 	return builtins.NewString(string(args[0].Type()))
 }
 

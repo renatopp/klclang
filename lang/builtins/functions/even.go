@@ -6,7 +6,7 @@ import (
 	"math"
 )
 
-func even(args ...obj.Object) obj.Object {
+func even(ev obj.Evaluator, args ...obj.Object) obj.Object {
 	if math.Mod(args[0].AsNumber(), 2) == 0 {
 		return builtins.TRUE
 	}

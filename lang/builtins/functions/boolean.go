@@ -5,7 +5,7 @@ import (
 	"klc/lang/obj"
 )
 
-func boolean(args ...obj.Object) obj.Object {
+func boolean(ev obj.Evaluator, args ...obj.Object) obj.Object {
 	if args[0].AsBool() {
 		return builtins.TRUE
 	}

@@ -5,7 +5,7 @@ import (
 	"klc/lang/obj"
 )
 
-func doc(args ...obj.Object) obj.Object {
+func doc(ev obj.Evaluator, args ...obj.Object) obj.Object {
 	if len(args) > 1 && args[1].AsNumber() != -1 {
 		d := args[1].AsString()
 		args[0].SetDoc(d)

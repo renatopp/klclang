@@ -6,7 +6,7 @@ import (
 	"math"
 )
 
-func range_(args ...obj.Object) obj.Object {
+func range_(ev obj.Evaluator, args ...obj.Object) obj.Object {
 	start := 0.0
 	stop := 0.0
 	step := 1.0

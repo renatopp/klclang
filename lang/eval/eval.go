@@ -123,6 +123,62 @@ func (e *Evaluator) Eval(n ast.Node) obj.Object {
 	return nil
 }
 
+func (e *Evaluator) Call(fn obj.Callable, args []obj.Object) obj.Object {
+	params := fn.GetParams()
+
+	e.Stack.Push()
+	defer e.Stack.Pop()
+
+	tArgs := len(args)
+	tParams := len(params)
+	g := 0
+	for i, v := range params {
+		if !v.Spread {
+			var value obj.Object
+			if g >= tArgs {
+				if v.Default == nil {
+					e.throw("missing argument: %s", v.Name)
+					return nil
+				}
+				value = v.Default
+			} else {
+				value = args[g]
+			}
+
+			g++
+			e.Stack.Set(v.Name, value)
+		} else {
+			missing := tParams - i - 1
+
+			total := 0
+			sv := make([]obj.Object, 0)
+			for j := i; j < (tArgs - missing); j++ {
+				t := args[j]
+				if t.Type() == obj.TList {
+					sv = append(sv, t.(*obj.List).Values...)
+				} else {
+					sv = append(sv, t)
+				}
+				total++
+			}
+
+			g += total
+			e.Stack.Set(v.Name, &obj.List{Values: sv})
+		}
+	}
+
+	switch fun := fn.(type) {
+	case *obj.BuiltinFunction:
+		return fun.Fn(e, args...)
+
+	case *obj.Function:
+		return e.Eval(fun.Body)
+	}
+
+	e.throw("invalid function type")
+	return nil
+}
+
 //
 
 func (e *Evaluator) evalBlock(n *ast.Block) obj.Object {
@@ -281,7 +337,7 @@ func (e *Evaluator) evalFuncCall(n *ast.FunctionCall) obj.Object {
 
 	switch fun := fn.(type) {
 	case *obj.BuiltinFunction:
-		return fun.Fn(args...)
+		return fun.Fn(e, args...)
 
 	case *obj.Function:
 		return e.Eval(fun.Body)

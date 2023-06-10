@@ -13,6 +13,8 @@ func RegisterBuiltins(s *EnvironmentStack) {
 	s.Set("exit", functions.Exit)
 
 	s.Set("range", functions.Range)
+	s.Set("filter", functions.Filter)
+	s.Set("select", functions.Filter)
 
 	s.Set("boolean", functions.Boolean)
 	s.Set("even", functions.Even)

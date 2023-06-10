@@ -1,6 +1,8 @@
 package builtins
 
-import "klc/lang/obj"
+import (
+	"klc/lang/obj"
+)
 
 var TRUE = &obj.Number{Value: 1}
 var FALSE = &obj.Number{Value: 0}
@@ -37,6 +39,10 @@ func NewNumberList(values ...float64) *obj.List {
 	}
 
 	return &obj.List{Values: v}
+}
+
+func NewList(values ...obj.Object) *obj.List {
+	return &obj.List{Values: values}
 }
 
 func WithDoc(obj obj.Object, doc string) obj.Object {

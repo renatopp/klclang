@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func echo(args ...obj.Object) obj.Object {
+func echo(ev obj.Evaluator, args ...obj.Object) obj.Object {
 	b := strings.Builder{}
 
 	for i, x := range args {

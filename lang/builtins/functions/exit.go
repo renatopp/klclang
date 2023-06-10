@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func exit(args ...obj.Object) obj.Object {
+func exit(ev obj.Evaluator, args ...obj.Object) obj.Object {
 	code := 0
 
 	if len(args) > 0 {

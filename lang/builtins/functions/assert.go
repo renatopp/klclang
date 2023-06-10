@@ -6,7 +6,7 @@ import (
 	"klc/lang/obj"
 )
 
-func assert(args ...obj.Object) obj.Object {
+func assert(ev obj.Evaluator, args ...obj.Object) obj.Object {
 	msg := "invalid assertion"
 	if len(args) > 1 {
 		msg = args[1].AsString()
@@ -14,7 +14,7 @@ func assert(args ...obj.Object) obj.Object {
 
 	if !args[0].AsBool() {
 		fmt.Println("ERR!", msg)
-		exit(builtins.NewNumber(1))
+		exit(ev, builtins.NewNumber(1))
 		return builtins.FALSE
 	}
 

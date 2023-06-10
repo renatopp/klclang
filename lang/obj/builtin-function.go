@@ -1,10 +1,16 @@
 package obj
 
 import (
+	"klc/lang/ast"
 	"strings"
 )
 
-type BuiltinFunctionFn func(args ...Object) Object
+type Evaluator interface {
+	Eval(n ast.Node) Object
+	Call(fn Callable, args []Object) Object
+}
+
+type BuiltinFunctionFn func(ev Evaluator, args ...Object) Object
 
 type BuiltinFunction struct {
 	BaseObject

@@ -19,7 +19,7 @@ func main() {
 		line := prompt.Input("> ", func(d prompt.Document) []prompt.Suggest {
 			s := make([]prompt.Suggest, 0)
 			eval.Stack.ForEach(func(name string, val obj.Object) {
-				// s = append(s, prompt.Suggest{Text: name, Description: val.AsString()})
+				s = append(s, prompt.Suggest{Text: name, Description: val.AsString()})
 			})
 
 			return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)

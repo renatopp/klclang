@@ -6,7 +6,7 @@ import (
 	"math"
 )
 
-func odd(args ...obj.Object) obj.Object {
+func odd(ev obj.Evaluator, args ...obj.Object) obj.Object {
 	if math.Mod(args[0].AsNumber(), 2) != 0 {
 		return builtins.TRUE
 	}
