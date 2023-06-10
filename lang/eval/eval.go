@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"klc/lang/ast"
 	"klc/lang/builtins"
+	"klc/lang/env"
 	"klc/lang/lexer"
 	"klc/lang/obj"
 	"klc/lang/parser"
@@ -18,7 +19,9 @@ const CHAIN_KEY = "0_chain"
 const RETURN_KEY = "0_return"
 
 type Evaluator struct {
-	Stack *EnvironmentStack
+	Stack  *EnvironmentStack
+	Stack2 *env.Stack
+	cycle  int
 }
 
 func Run(code string) {
@@ -40,7 +43,8 @@ func Run(code string) {
 
 func New() *Evaluator {
 	ev := &Evaluator{
-		Stack: NewStack(),
+		Stack:  NewStack(),
+		Stack2: env.NewStack(),
 	}
 
 	RegisterBuiltins(ev.Stack)
@@ -57,6 +61,8 @@ func (e *Evaluator) debug(a ...any) {
 func (e *Evaluator) throw(msg string, a ...any) {
 	panic(fmt.Sprintf(msg, a...))
 }
+
+// ----------------------------------------------------------------------------
 
 func (e *Evaluator) SafeEval(n ast.Node) (r obj.Object, err error) {
 	defer func() {
@@ -179,7 +185,7 @@ func (e *Evaluator) Call(fn obj.Callable, args []obj.Object) obj.Object {
 	return nil
 }
 
-//
+// ----------------------------------------------------------------------------
 
 func (e *Evaluator) evalBlock(n *ast.Block) obj.Object {
 	var result obj.Object
