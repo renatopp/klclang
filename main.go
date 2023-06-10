@@ -31,12 +31,28 @@ quicksort = fn(...list) {
 }
 `
 
+var testing2 = `
+t = 'hello'
+
+'teste'
+	.echo()
+	.exit()
+`
+
 var testing = `
-2 is even
+solution = fn(n=1000) {
+  range(n)
+    .filter where x%3 == 0 || x%5 == 0
+    .sum()
+}
+
+assert solution(3) == 0
+assert solution(5) == 1
+assert solution(6) == 2
 `
 
 func main() {
-	input := testing
+	input := testing2
 
 	lex0 := lexer.New(input)
 	tokens := lex0.All()

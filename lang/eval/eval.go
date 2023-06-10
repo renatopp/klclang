@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"klc/lang/ast"
 	"klc/lang/builtins"
+	"klc/lang/lexer"
 	"klc/lang/obj"
+	"klc/lang/parser"
 	"math"
 	"strings"
 )
@@ -17,6 +19,23 @@ const RETURN_KEY = "0_return"
 
 type Evaluator struct {
 	Stack *EnvironmentStack
+}
+
+func Run(code string) {
+	eval := New()
+	l := lexer.New(code)
+	p := parser.New(l)
+	prg, err := p.Parse()
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	r := eval.Eval(prg.Root)
+	if r != nil {
+		fmt.Println(r.AsString())
+	}
 }
 
 func New() *Evaluator {

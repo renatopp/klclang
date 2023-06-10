@@ -6,7 +6,7 @@ import (
 )
 
 func doc(args ...obj.Object) obj.Object {
-	if args[1].AsNumber() != -1 {
+	if len(args) > 1 && args[1].AsNumber() != -1 {
 		d := args[1].AsString()
 		args[0].SetDoc(d)
 		return builtins.NewString(d)

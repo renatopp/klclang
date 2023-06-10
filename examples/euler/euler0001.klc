@@ -1,0 +1,9 @@
+solution = fn(n=1000) {
+  range(n)
+    .filter where x%3 == 0 || x%5 == 0
+    .sum()
+}
+
+assert solution(3) == 0
+assert solution(5) == 1
+assert solution(6) == 2

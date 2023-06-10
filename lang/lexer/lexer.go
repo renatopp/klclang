@@ -91,7 +91,7 @@ func (l *Lexer) PeekN(n int) *token.Token {
 			return l.eof
 		}
 
-		for i := 0; i < n-len(l.queue); i++ {
+		for i := 0; i < n+1-len(l.queue); i++ {
 			l.next()
 
 			if l.eof != nil {
@@ -101,6 +101,12 @@ func (l *Lexer) PeekN(n int) *token.Token {
 	}
 
 	return l.queue[n]
+}
+
+func (l *Lexer) DropPeek() {
+	if len(l.queue) > 0 {
+		l.queue = l.queue[1:]
+	}
 }
 
 // ----------------------------------------------------------------------------
@@ -340,6 +346,10 @@ func (l *Lexer) parseQuestion() *token.Token {
 
 func (l *Lexer) parseDot() *token.Token {
 	pos := l.at()
+
+	if isDigit(l.peekChar(1)) {
+		return l.parseNumber()
+	}
 
 	left := l.char()
 	l.skip()

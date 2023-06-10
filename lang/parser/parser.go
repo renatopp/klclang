@@ -199,11 +199,14 @@ func (p *Parser) parseStatement() ast.Node {
 
 	if t.Is(token.Eof) || t.Is(token.Rbrace) {
 		return nil
+
 	} else if t.Is(token.Semicolon) {
 		t = p.lexer.Next()
 		return nil
+
 	} else if t.Is(token.Lbrace) {
 		return p.parseBlock()
+
 	} else if t.Is(token.Question) {
 		return p.parseIfReturn()
 	}
@@ -288,9 +291,14 @@ func (p *Parser) parseExpression(priority int) ast.Node {
 		p.skipNewlines()
 	}
 
+	if p.lexer.Current().Is(token.Rparen) && p.lexer.Peek().Is(token.Newline) && p.lexer.PeekN(1).Is(token.Dot) {
+		p.lexer.DropPeek()
+	}
+
 	nt := p.lexer.Current()
 	for !isEndOfExpression(nt) && priorityOf(nt) >= priority {
 		infix := p.infixes[nt.Type]
+
 		if infix == nil {
 			return root
 		}
