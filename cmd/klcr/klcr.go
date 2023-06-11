@@ -36,7 +36,9 @@ func main() {
 			continue
 
 		} else if line == "#stack" {
-			eval.Stack.Print()
+			eval.Stack.ForEach(func(s string, o obj.Object) {
+				fmt.Println(s, o.AsString())
+			})
 			fmt.Println(" ")
 			continue
 

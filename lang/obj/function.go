@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+type ScopedStore interface{}
+
 type FunctionParam struct {
 	Name    string
 	Default Object
@@ -25,6 +27,7 @@ func (n *FunctionParam) String(builder *strings.Builder) {
 type Function struct {
 	BaseObject
 
+	Scope  ScopedStore
 	Params []*FunctionParam
 	Body   ast.Node
 }
@@ -61,4 +64,8 @@ func (n *Function) AsNumber() float64 {
 
 func (n *Function) GetParams() []*FunctionParam {
 	return n.Params
+}
+
+func (n *Function) GetScope() ScopedStore {
+	return n.Scope
 }

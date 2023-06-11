@@ -52,3 +52,7 @@ func (n *BuiltinFunction) AsNumber() float64 {
 func (n *BuiltinFunction) GetParams() []*FunctionParam {
 	return n.Params
 }
+
+func (n *BuiltinFunction) GetScope() ScopedStore {
+	return nil
+}

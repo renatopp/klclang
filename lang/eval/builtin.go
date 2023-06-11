@@ -3,9 +3,10 @@ package eval
 import (
 	"klc/lang/builtins/constants"
 	"klc/lang/builtins/functions"
+	"klc/lang/env"
 )
 
-func RegisterBuiltins(s *EnvironmentStack) {
+func RegisterBuiltins(s *env.Stack) {
 	s.Set("echo", functions.Echo)
 	s.Set("doc", functions.Doc)
 	s.Set("type", functions.Type)

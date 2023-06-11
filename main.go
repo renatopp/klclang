@@ -32,7 +32,14 @@ quicksort = fn(...list) {
 `
 
 var testing2 = `
-echo 1 2
+a = fn x, y {
+	fn z {
+		x + y + z
+	}
+}
+
+b = a(1, 2)
+echo b(3)
 `
 
 var testing = `

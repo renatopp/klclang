@@ -19,9 +19,8 @@ const CHAIN_KEY = "0_chain"
 const RETURN_KEY = "0_return"
 
 type Evaluator struct {
-	Stack  *EnvironmentStack
-	Stack2 *env.Stack
-	cycle  int
+	Stack *env.Stack
+	cycle int
 }
 
 func Run(code string) {
@@ -43,8 +42,7 @@ func Run(code string) {
 
 func New() *Evaluator {
 	ev := &Evaluator{
-		Stack:  NewStack(),
-		Stack2: env.NewStack(),
+		Stack: env.NewStack(),
 	}
 
 	RegisterBuiltins(ev.Stack)
@@ -132,7 +130,12 @@ func (e *Evaluator) Eval(n ast.Node) obj.Object {
 func (e *Evaluator) Call(fn obj.Callable, args []obj.Object) obj.Object {
 	params := fn.GetParams()
 
-	e.Stack.Push()
+	s := fn.GetScope()
+	var scope *env.Env
+	if s != nil {
+		scope = s.(*env.Env)
+	}
+	e.Stack.Push(scope)
 	defer e.Stack.Pop()
 
 	tArgs := len(args)
@@ -276,6 +279,7 @@ func (e *Evaluator) evalFuncDef(n *ast.FunctionDef) obj.Object {
 	return &obj.Function{
 		Params: pms,
 		Body:   n.Block,
+		Scope:  e.Stack.Current(),
 	}
 }
 
@@ -300,7 +304,12 @@ func (e *Evaluator) evalFuncCall(n *ast.FunctionCall) obj.Object {
 	fn := target.(obj.Callable)
 	params := fn.GetParams()
 
-	e.Stack.Push()
+	s := fn.GetScope()
+	var scope *env.Env
+	if s != nil {
+		scope = s.(*env.Env)
+	}
+	e.Stack.Push(scope)
 	defer e.Stack.Pop()
 
 	tArgs := len(args)

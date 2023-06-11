@@ -7,6 +7,13 @@ type Env struct {
 	Store  map[string]obj.Object
 }
 
+func NewEnv(parent *Env) *Env {
+	return &Env{
+		Parent: parent,
+		Store:  make(map[string]obj.Object),
+	}
+}
+
 func (e *Env) Get(name string) (obj.Object, bool) {
 	obj, ok := e.Store[name]
 	if !ok && e.Parent != nil {
@@ -33,13 +40,4 @@ func (e *Env) ForEach(fn func(string, obj.Object)) {
 	for k, v := range e.Store {
 		fn(k, v)
 	}
-}
-
-func (e *Env) New() *Env {
-	n := &Env{
-		Parent: e,
-		Store:  make(map[string]obj.Object),
-	}
-
-	return n
 }
