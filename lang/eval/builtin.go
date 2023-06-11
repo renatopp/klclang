@@ -16,6 +16,7 @@ func RegisterBuiltins(s *env.Stack) {
 	s.Set("range", functions.Range)
 	s.Set("filter", functions.Filter)
 	s.Set("select", functions.Filter)
+	s.Set("sum", functions.Sum)
 
 	s.Set("boolean", functions.Boolean)
 	s.Set("even", functions.Even)

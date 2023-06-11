@@ -43,19 +43,21 @@ echo b(3)
 `
 
 var testing = `
-solution = fn(n=1000) {
-  range(n)
-    .filter where x%3 == 0 || x%5 == 0
-    .sum()
+
+solution = fn max, a=1, b=1, sum=0 {
+	c = a + b
+	? c > max: sum
+	? solution max, b, c, c is even ? sum + c : sum
 }
 
-assert solution(3) == 0
-assert solution(5) == 1
-assert solution(6) == 2
+assert solution(10) == 10
+assert solution(50) == 44
+
+solution 4000000
 `
 
 func main() {
-	input := testing2
+	input := testing
 
 	lex0 := lexer.New(input)
 	tokens := lex0.All()
