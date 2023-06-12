@@ -1,0 +1,10 @@
+quicksort = fn ...list {
+  ? !len(list) : list
+  p = list[len(list)//2]
+	
+  quicksort(filter list where x < p) ++
+					 (filter list where x == p) ++
+	quicksort(filter list where x > p)
+}
+
+quicksort([5, 7, 2, 1, 0, 3, 8, 3, 2])

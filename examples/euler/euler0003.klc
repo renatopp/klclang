@@ -1,0 +1,7 @@
+solution = fn n, i=2 {
+	? i*i > n : n
+	? n % i : solution(n, i+1)
+	? solution(n//i, i)
+}
+
+solution(600851475143)

@@ -20,6 +20,7 @@ func RegisterBuiltins(s *env.Stack) {
 	s.Set("map", functions.Map)
 	s.Set("reduce", functions.Reduce)
 	s.Set("sum", functions.Sum)
+	s.Set("len", functions.Len)
 
 	s.Set("boolean", functions.Boolean)
 	s.Set("even", functions.Even)
