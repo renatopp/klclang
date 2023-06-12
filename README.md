@@ -58,7 +58,7 @@ You can use pipe-like functions where the result of the previous expression is i
 ```
 euler1 = fn(n=1000) {
   range(n)
-		.filter(where x%3 == 0 || x%5 == 0)
+    .filter(where x%3 == 0 || x%5 == 0)
     .sum()
 }
 
@@ -96,8 +96,8 @@ quicksort = fn ...list {
   p = list[len(list)//2]
 	
   quicksort(filter list where x < p) ++
-					 (filter list where x == p) ++
-	quicksort(filter list where x > p)
+           (filter list where x == p) ++
+  quicksort(filter list where x > p)
 }
 
 quicksort([5, 7, 2, 1, 0, 3, 8, 3, 2])
@@ -107,9 +107,9 @@ quicksort([5, 7, 2, 1, 0, 3, 8, 3, 2])
 
 ```
 solution = fn max, a=1, b=1, sum=0 {
-	c = a + b
-	? c > max: sum
-	? solution max, b, c, c is even ? sum + c : sum
+  c = a + b
+  ? c > max: sum
+  ? solution max, b, c, c is even ? sum + c : sum
 }
 
 assert solution(10) == 10
