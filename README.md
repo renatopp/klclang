@@ -45,7 +45,7 @@ KLC provides a builtin metrics constants that are useful for conversion:
 
 ```
 fib = fn x {
-  ? x <= 0  : 0 # syntax sugar for 'if x<0 { return 0 }
+  ? x <= 0 : 0 # syntax sugar for 'if x<0 { return 0 }'
   ? x == 1 : 1
   fib(x - 1) + fib(x - 2)
 }
@@ -123,9 +123,9 @@ solution 4000000
 
 ```
 solution = fn n, i=2 {
-	? i*i > n : n
-	? n % i : solution(n, i+1)
-	? solution(n//i, i)
+  ? i*i > n : n
+  ? n % i : solution(n, i+1)
+  ? solution(n//i, i)
 }
 
 solution(600851475143)
