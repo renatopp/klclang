@@ -60,7 +60,7 @@ Booleans are represented as numbers, where `0` is false and any non-zero value i
 
 KLC supports the metric system, allowing you to write expressions using metric units. This feature makes it easier to perform calculations involving units of measurement.
 
-You can write expressions like `10H` and `10M to S`. Here, `10H` is equivalent to `10*H`, where `H` is a constant that represents hours. 
+You can write expressions like `10H` and `10M to S`. Here, `10H` is equivalent to `10*H`, where `H` is a constant that represents hours.
 
 You can also convert between units using the `to` keyword. For example, `10H to S` is equivalent to `(10*H)/S`, converting hours to seconds.
 
@@ -78,7 +78,7 @@ This means that when you write `10H`, KLC interprets it as `10` times the number
 
 ## Functions
 
-Functions  are predefined procedures that perform a specific task. They take in parameters, perform an operation, and often return a result. You can call a function by writing its name followed by parentheses `()`. Inside the parentheses, you provide the input values (or arguments) for the function. 
+Functions are predefined procedures that perform a specific task. They take in parameters, perform an operation, and often return a result. You can call a function by writing its name followed by parentheses `()`. Inside the parentheses, you provide the input values (or arguments) for the function.
 
 For example, the `floor(value)` function in KLC takes a number as an input and returns the largest integer less than or equal to that number.
 
@@ -93,6 +93,16 @@ result = floor(3.14) -- result will hold the value 3
 TODO
 
 ```
-functionName parameter1 parameter2 ... = functionBody
+functionName(parameter1, parameter2, ...) = functionBody
 ```
 
+```
+factorial(0) = 1
+factorial(x) = x * factorial(-1)
+```
+
+```
+fib(0) = 0
+fib(1) = 1
+fib(x) = fib(x-1) + fib(x-2)
+```
