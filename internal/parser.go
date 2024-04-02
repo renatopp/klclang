@@ -23,6 +23,7 @@ func NewParser(lexer *KlcLexer) *KlcParser {
 	k.RegisterPrefixFn(TIdentifier, k.prefixIdentifier)
 	k.RegisterPrefixFn(TLParen, k.prefixParen)
 	k.RegisterPrefixFn(TOperator, k.prefixOperator)
+	k.RegisterInfixFn(TAssign, k.infixAssignment)
 	k.RegisterInfixFn(TOperator, k.infixOperator)
 	k.RegisterInfixFn(TKeyword, k.infixKeyword)
 
@@ -132,18 +133,35 @@ func (k *KlcParser) prefixOperator() asts.Node {
 	}
 }
 
+func (k *KlcParser) infixAssignment(left asts.Node) asts.Node {
+	cur := k.Lexer.EatToken()
+	right := k.ParseExpression(k.PrecedenceFn(cur))
+
+	if isNodeAn[ast.Identifier](left) || isNodeAn[ast.FunctionCall](left) {
+		return ast.Assignment{
+			Token:      cur,
+			Operator:   cur.Literal,
+			Identifier: left,
+			Expression: right,
+		}
+	}
+
+	k.RegisterErrorWithToken("expected identifier or function definition at left", cur)
+	return nil
+}
+
 func (k *KlcParser) infixOperator(left asts.Node) asts.Node {
-	t := k.Lexer.EatToken()
-	right := k.ParseExpression(k.PrecedenceFn(t))
+	cur := k.Lexer.EatToken()
+	right := k.ParseExpression(k.PrecedenceFn(cur))
 
 	if right == nil {
-		k.RegisterErrorWithToken("expected expression", t)
+		k.RegisterErrorWithToken("expected expression", cur)
 		return nil
 	}
 
 	return ast.BinaryOperator{
-		Token:    t,
-		Operator: t.Literal,
+		Token:    cur,
+		Operator: cur.Literal,
 		Left:     left,
 		Right:    right,
 	}
@@ -164,4 +182,9 @@ func (k *KlcParser) infixKeyword(left asts.Node) asts.Node {
 		Left:     left,
 		Right:    right,
 	}
+}
+
+func isNodeAn[T asts.Node](node asts.Node) bool {
+	_, ok := node.(T)
+	return ok
 }

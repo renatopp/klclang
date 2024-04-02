@@ -29,6 +29,13 @@ func Debug(code []byte) {
 		}
 
 		println()
+
+		if lexer.HasErrors() {
+			println("ERRORS:")
+			println(internal.ConvertLexerErrors(code, lexer.Errors()).Error())
+			println()
+			os.Exit(0)
+		}
 	}
 
 	var root asts.Node

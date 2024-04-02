@@ -1,6 +1,8 @@
 package internal
 
 import (
+	"fmt"
+
 	"github.com/renatopp/langtools/lexers"
 	"github.com/renatopp/langtools/runes"
 	"github.com/renatopp/langtools/tokens"
@@ -139,8 +141,10 @@ func (k *KlcLexer) tokenizer() tokens.Token {
 			k.EatWhitespaces()
 
 		default:
-			c := k.EatChar()
-			return tokens.NewTokenAtChar(TInvalid, string(c.Rune), c)
+			k.RegisterError(fmt.Sprintf("invalid character `%s`", string(c0.Rune)))
+			k.EatChar()
+			continue
+			// t := tokens.NewTokenAtChar(TInvalid, string(c.Rune), c)
 
 		}
 	}

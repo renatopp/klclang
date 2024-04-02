@@ -6,8 +6,11 @@
 
 - [x] Create metric constants
 
+- [ ] Handle compilator errors
+
 - [ ] Assignment parser
 - [ ] Assignment evaluator
+
 
 - [ ] Function def parser
 - [ ] Function def evaluator
