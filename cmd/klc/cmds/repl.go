@@ -6,20 +6,36 @@ import (
 	"runtime"
 
 	"github.com/c-bata/go-prompt"
+	"github.com/renatopp/klclang/internal"
 )
 
 func Repl() {
+	runtime := internal.NewEvaluator()
 	clearConsole()
 	printWelcome()
 
 	for {
 		t := prompt.Input("? ", completer)
+		if t == "clear" {
+			clearConsole()
+			continue
+		}
+
 		if t == "exit" {
 			println()
 			break
 		}
 
-		printResult(t)
+		lexer := internal.NewLexer([]byte(t))
+		parser := internal.NewParser(lexer)
+		node := parser.Parse()
+		obj := runtime.Eval(node)
+		if obj == nil {
+			println()
+			continue
+		}
+
+		printResult(obj.String())
 	}
 }
 
@@ -46,6 +62,7 @@ func clearConsole() {
 func printWelcome() {
 	println("# KLCLANG REPL")
 	println()
+	println("- Type 'clear' to clear the terminal.")
 	println("- Type 'exit' to exit.")
 	println()
 }

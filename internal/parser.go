@@ -22,7 +22,9 @@ func NewParser(lexer *KlcLexer) *KlcParser {
 	k.RegisterPrefixFn(TNumber, k.prefixNumber)
 	k.RegisterPrefixFn(TIdentifier, k.prefixIdentifier)
 	k.RegisterPrefixFn(TLParen, k.prefixParen)
+	k.RegisterPrefixFn(TOperator, k.prefixOperator)
 	k.RegisterInfixFn(TOperator, k.infixOperator)
+	k.RegisterInfixFn(TKeyword, k.infixKeyword)
 
 	return k
 }
@@ -30,6 +32,8 @@ func NewParser(lexer *KlcLexer) *KlcParser {
 func (k *KlcParser) isEndOfExpr(t tokens.Token) bool {
 	return t.Type == TEoe || t.Type == TEof
 }
+
+const PRECEDENCE_UNARY = 36
 
 func (k *KlcParser) precedence(t tokens.Token) int {
 	switch {
@@ -51,6 +55,8 @@ func (k *KlcParser) precedence(t tokens.Token) int {
 	case t.IsType(TOperator) && t.IsOneOfLiterals(">", "<", ">=", "<="):
 		return 26
 
+	case t.IsType(TKeyword) && t.IsOneOfLiterals("to"):
+		return 29
 	case t.IsType(TOperator) && t.IsOneOfLiterals("+", "-"):
 		return 30
 	case t.IsType(TOperator) && t.IsOneOfLiterals("*", "/"):
@@ -58,7 +64,8 @@ func (k *KlcParser) precedence(t tokens.Token) int {
 	case t.IsType(TOperator) && t.IsOneOfLiterals("%"):
 		return 32
 	case t.IsType(TOperator) && t.IsOneOfLiterals("^"):
-		return 33
+		return 34
+	// UNARY
 
 	case t.IsType(TLParen):
 		return 40
@@ -110,6 +117,21 @@ func (k *KlcParser) prefixParen() asts.Node {
 	return expr
 }
 
+func (k *KlcParser) prefixOperator() asts.Node {
+	cur := k.Lexer.EatToken()
+
+	if !cur.IsOneOfLiterals("-", "+") {
+		k.RegisterErrorWithToken("expected unary operator", cur)
+		return nil
+	}
+
+	return ast.UnaryOperator{
+		Token:      cur,
+		Operator:   cur.Literal,
+		Expression: k.ParseExpression(PRECEDENCE_UNARY),
+	}
+}
+
 func (k *KlcParser) infixOperator(left asts.Node) asts.Node {
 	t := k.Lexer.EatToken()
 	right := k.ParseExpression(k.PrecedenceFn(t))
@@ -122,6 +144,23 @@ func (k *KlcParser) infixOperator(left asts.Node) asts.Node {
 	return ast.BinaryOperator{
 		Token:    t,
 		Operator: t.Literal,
+		Left:     left,
+		Right:    right,
+	}
+}
+
+func (k *KlcParser) infixKeyword(left asts.Node) asts.Node {
+	t := k.Lexer.EatToken()
+	right := k.ParseExpression(k.PrecedenceFn(t))
+
+	if right == nil {
+		k.RegisterErrorWithToken("expected expression", t)
+		return nil
+	}
+
+	return ast.BinaryOperator{
+		Token:    t,
+		Operator: "/",
 		Left:     left,
 		Right:    right,
 	}

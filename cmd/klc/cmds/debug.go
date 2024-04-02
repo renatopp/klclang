@@ -31,6 +31,7 @@ func Debug(code []byte) {
 		println()
 	}
 
+	var root asts.Node
 	{
 		println("NODES:")
 		lexer := internal.NewLexer(code)
@@ -39,8 +40,22 @@ func Debug(code []byte) {
 		node := parser.Parse()
 		if node == nil {
 			println("- node is nil")
+			os.Exit(0)
 		}
 
+		root = node
 		asts.Print(node, "  ")
+		println()
+	}
+
+	{
+		println("EVALUATOR:")
+		obj := internal.Eval(root)
+		if obj == nil {
+			println("- eval is nil")
+			os.Exit(0)
+		}
+
+		println("=", obj.String())
 	}
 }

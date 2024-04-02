@@ -90,11 +90,7 @@ result = floor(3.14) -- result will hold the value 3
 
 ### Custom Functions
 
-TODO
-
-```
-functionName(parameter1, parameter2, ...) = functionBody
-```
+Haskell like? pattern matching
 
 ```
 factorial(0) = 1
@@ -106,3 +102,4 @@ fib(0) = 0
 fib(1) = 1
 fib(x) = fib(x-1) + fib(x-2)
 ```
+

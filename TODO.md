@@ -1,10 +1,22 @@
 # TODO
 
-- [x] Implement expression parser
-- [ ] Implement assignment parser
-- [ ] Implement function def parser
-- [ ] Implement function call parser
-- [ ] Implement expression interpreter
-- [ ] Implement assignment interpreter
-- [ ] Implement function def interpreter
-- [ ] Implement function call interpreter
+- [x] Expression parser
+- [x] Expression evaluator
+- [x] TO expression parser
+
+- [x] Create metric constants
+
+- [ ] Assignment parser
+- [ ] Assignment evaluator
+
+- [ ] Function def parser
+- [ ] Function def evaluator
+- [ ] Function call parser
+- [ ] Function call evaluator
+
+- [ ] Create builtin functions
+
+- [ ] Assertion
+- [ ] Panic
+
+- [ ] Add comments and documentation
