@@ -3,30 +3,25 @@ package ast
 import (
 	"fmt"
 
-	"github.com/renatopp/langtools"
+	"github.com/renatopp/langtools/asts"
+	"github.com/renatopp/langtools/tokens"
 )
 
 type BinaryOperator struct {
-	Token    langtools.Token
+	Token    tokens.Token
 	Operator string
-	Left     INode
-	Right    INode
+	Left     asts.Node
+	Right    asts.Node
 }
 
-func (b *BinaryOperator) GetToken() langtools.Token {
+func (b BinaryOperator) GetToken() tokens.Token {
 	return b.Token
 }
 
-func (b *BinaryOperator) String() string {
+func (b BinaryOperator) String() string {
 	return fmt.Sprintf("<binary-operator:%s>", b.Operator)
 }
 
-func (b *BinaryOperator) Children() []INode {
-	return []INode{b.Left, b.Right}
-}
-
-func (b *BinaryOperator) Traverse(level int, f func(int, INode)) {
-	f(level, b)
-	b.Left.Traverse(level+1, f)
-	b.Right.Traverse(level+1, f)
+func (b BinaryOperator) Children() []asts.Node {
+	return []asts.Node{b.Left, b.Right}
 }

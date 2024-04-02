@@ -3,26 +3,23 @@ package ast
 import (
 	"fmt"
 
-	"github.com/renatopp/langtools"
+	"github.com/renatopp/langtools/asts"
+	"github.com/renatopp/langtools/tokens"
 )
 
 type Number struct {
-	Token langtools.Token
+	Token tokens.Token
 	Value float64
 }
 
-func (n *Number) GetToken() langtools.Token {
+func (n Number) GetToken() tokens.Token {
 	return n.Token
 }
 
-func (n *Number) String() string {
+func (n Number) String() string {
 	return fmt.Sprintf("<number:%0.4f>", n.Value)
 }
 
-func (n *Number) Children() []INode {
-	return []INode{}
-}
-
-func (n *Number) Traverse(level int, f func(int, INode)) {
-	f(level, n)
+func (n Number) Children() []asts.Node {
+	return []asts.Node{}
 }

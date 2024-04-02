@@ -7,7 +7,7 @@ KLC is simple mathematical language for daily needs.
 ## Usage
 
 ```bash
-$ klc 1 + 2
+$ klc "1 + 2"
 3
 
 $ klc

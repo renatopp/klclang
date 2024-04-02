@@ -1,30 +1,26 @@
 package ast
 
-import "github.com/renatopp/langtools"
+import (
+	"github.com/renatopp/langtools/asts"
+	"github.com/renatopp/langtools/tokens"
+)
 
 type FunctionCall struct {
-	Target    INode
-	Arguments []INode
+	Token     tokens.Token
+	Target    asts.Node
+	Arguments []asts.Node
 }
 
-func (c *FunctionCall) GetToken() langtools.Token {
-	return c.Target.GetToken()
+func (c FunctionCall) GetToken() tokens.Token {
+	return c.Token
 }
 
-func (c *FunctionCall) String() string {
+func (c FunctionCall) String() string {
 	return "<function-call>"
 }
 
-func (c *FunctionCall) Children() []INode {
-	children := []INode{c.Target}
+func (c FunctionCall) Children() []asts.Node {
+	children := []asts.Node{c.Target}
 	children = append(children, c.Arguments...)
 	return children
-}
-
-func (c *FunctionCall) Traverse(level int, f func(int, INode)) {
-	f(level, c)
-	f(level+1, c.Target)
-	for _, a := range c.Arguments {
-		a.Traverse(level+1, f)
-	}
 }

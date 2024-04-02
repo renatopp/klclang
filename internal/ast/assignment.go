@@ -3,30 +3,25 @@ package ast
 import (
 	"fmt"
 
-	"github.com/renatopp/langtools"
+	"github.com/renatopp/langtools/asts"
+	"github.com/renatopp/langtools/tokens"
 )
 
 type Assignment struct {
-	Token      langtools.Token
+	Token      tokens.Token
 	Operator   string
-	Identifier INode
-	Expression INode
+	Identifier asts.Node
+	Expression asts.Node
 }
 
-func (a *Assignment) GetToken() langtools.Token {
+func (a Assignment) GetToken() tokens.Token {
 	return a.Token
 }
 
-func (a *Assignment) String() string {
-	return fmt.Sprintf("<assignment:%s", a.Operator)
+func (a Assignment) String() string {
+	return fmt.Sprintf("<assignment:%s>", a.Operator)
 }
 
-func (a *Assignment) Children() []INode {
-	return []INode{a.Identifier, a.Expression}
-}
-
-func (a *Assignment) Traverse(level int, f func(int, INode)) {
-	f(level, a)
-	a.Identifier.Traverse(level+1, f)
-	a.Expression.Traverse(level+1, f)
+func (a Assignment) Children() []asts.Node {
+	return []asts.Node{a.Identifier, a.Expression}
 }

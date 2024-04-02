@@ -1,26 +1,23 @@
 package ast
 
-import "github.com/renatopp/langtools"
+import (
+	"github.com/renatopp/langtools/asts"
+	"github.com/renatopp/langtools/tokens"
+)
 
 type Block struct {
-	Statements []INode
+	Token      tokens.Token
+	Statements []asts.Node
 }
 
-func (b *Block) GetToken() langtools.Token {
-	return langtools.Token{}
+func (d Block) GetToken() tokens.Token {
+	return d.Token
 }
 
-func (b *Block) String() string {
+func (b Block) String() string {
 	return "<block>"
 }
 
-func (b *Block) Children() []INode {
+func (b Block) Children() []asts.Node {
 	return b.Statements
-}
-
-func (b *Block) Traverse(level int, f func(int, INode)) {
-	f(level, b)
-	for _, s := range b.Statements {
-		s.Traverse(level+1, f)
-	}
 }

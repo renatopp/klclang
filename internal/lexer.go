@@ -1,18 +1,22 @@
 package internal
 
 import (
-	"github.com/renatopp/langtools"
+	"github.com/renatopp/langtools/lexers"
 	"github.com/renatopp/langtools/runes"
-	"github.com/renatopp/langtools/tokenizers"
+	"github.com/renatopp/langtools/tokens"
 )
 
 type KlcLexer struct {
-	*langtools.Lexer
+	*lexers.BaseLexer
+	pendingList []tokens.Token
 }
 
 func NewLexer(input []byte) *KlcLexer {
 	k := &KlcLexer{}
-	k.Lexer = langtools.NewLexer(input, k.tokenizer)
+	k.BaseLexer = lexers.NewBaseLexer(input, func(bl *lexers.BaseLexer) tokens.Token {
+		return k.tokenizer()
+	})
+	k.pendingList = make([]tokens.Token, 0)
 	return k
 }
 
@@ -26,37 +30,54 @@ func (k *KlcLexer) matches(nexts ...rune) bool {
 	return true
 }
 
-func (k *KlcLexer) tokenizer(l *langtools.Lexer) langtools.Token {
+func (k *KlcLexer) tokenizer() tokens.Token {
 	for {
-		if l.HasTooManyErrors() {
-			return langtools.NewToken(langtools.TUnknown, "", 0, 0)
+		if k.HasTooManyErrors() {
+			return tokens.NewToken(TUnknown, "", 0, 0)
 		}
 
-		c0 := l.PeekCharAt(0)
-		c1 := l.PeekCharAt(1)
+		if len(k.pendingList) > 0 {
+			t := k.pendingList[0]
+			k.pendingList = k.pendingList[1:]
+			return t
+		}
+
+		c0 := k.PeekCharAt(0)
+		c1 := k.PeekCharAt(1)
 
 		switch {
+		case c0.Rune == 0:
+			return tokens.NewEofTokenAtChar(c0)
+
+		// Comments
 		case k.matches('-', '-'):
-			l.EatChar()
-			l.EatChar()
-			return tokenizers.EatUntilEndOfLine(l, TComment)
+			k.EatChar()
+			k.EatChar()
+			return k.EatUntilEndOfLine().As(TComment)
 
+		// Identifiers, Keywords and Logical Operators
 		case runes.IsAlpha(c0.Rune):
-			t := tokenizers.EatIdentifier(l, TIdentifier)
+			t := k.EatIdentifier()
 
-			if t.Literal == "or" ||
-				t.Literal == "and" {
-				return langtools.NewToken(TOperand, t.Literal, t.Line, t.Column)
+			if t.IsOneOfLiterals("or", "and") {
+				return t.As(TOperator)
 			}
 
-			if t.Literal == "to" {
-				return langtools.NewToken(TKeyword, t.Literal, t.Line, t.Column)
+			if t.IsOneOfLiterals("to") {
+				return t.As(TKeyword)
 			}
 
-			return t
+			prev := k.PrevToken()
+			if prev.IsType(TNumber) {
+				k.pendingList = append(k.pendingList, t.As(TIdentifier))
+				return tokens.NewToken(TOperator, "*", t.Line, t.Column)
+			}
 
+			return t.As(TIdentifier)
+
+		// Numbers
 		case runes.IsDigit(c0.Rune) || c0.Is('.') && runes.IsDigit(c1.Rune):
-			return tokenizers.EatNumber(l, TNumber)
+			return k.EatNumber().As(TNumber)
 
 		case k.matches('+', '=') ||
 			k.matches('-', '=') ||
@@ -64,9 +85,9 @@ func (k *KlcLexer) tokenizer(l *langtools.Lexer) langtools.Token {
 			k.matches('/', '=') ||
 			k.matches('%', '=') ||
 			k.matches('^', '='):
-			first := l.EatChar()
-			second := l.EatChar()
-			return langtools.NewToken(TAssign, string(first.Rune)+string(second.Rune), first.Line, first.Column)
+			first := k.EatChar()
+			second := k.EatChar()
+			return tokens.NewToken(TAssign, string(first.Rune)+string(second.Rune), first.Line, first.Column)
 
 		case k.matches('=', '=') ||
 			k.matches('!', '=') ||
@@ -74,9 +95,9 @@ func (k *KlcLexer) tokenizer(l *langtools.Lexer) langtools.Token {
 			k.matches('>', '=') ||
 			k.matches('!', '=') ||
 			k.matches('=', '='):
-			first := l.EatChar()
-			second := l.EatChar()
-			return langtools.NewToken(TOperand, string(first.Rune)+string(second.Rune), first.Line, first.Column)
+			first := k.EatChar()
+			second := k.EatChar()
+			return tokens.NewToken(TOperator, string(first.Rune)+string(second.Rune), first.Line, first.Column)
 
 		case c0.Is('+') ||
 			c0.Is('-') ||
@@ -87,32 +108,39 @@ func (k *KlcLexer) tokenizer(l *langtools.Lexer) langtools.Token {
 			c0.Is('<') ||
 			c0.Is('>') ||
 			c0.Is('!'):
-			return langtools.NewToken(TOperand, string(l.EatChar().Rune), c0.Line, c0.Column)
+			return tokens.NewTokenAtChar(TOperator, string(k.EatChar().Rune), c0)
 
 		case c0.Is('='):
-			return langtools.NewToken(TAssign, string(l.EatChar().Rune), c0.Line, c0.Column)
+			return tokens.NewTokenAtChar(TAssign, string(k.EatChar().Rune), c0)
 
 		case c0.Is('('):
-			return langtools.NewToken(TLParen, string(l.EatChar().Rune), c0.Line, c0.Column)
+			t := tokens.NewTokenAtChar(TLParen, string(k.EatChar().Rune), c0)
+
+			if k.PrevToken().IsType(TNumber) {
+				k.pendingList = append(k.pendingList, t)
+				return tokens.NewToken(TOperator, "*", t.Line, t.Column)
+			}
+
+			return t
 
 		case c0.Is(')'):
-			return langtools.NewToken(TRParen, string(l.EatChar().Rune), c0.Line, c0.Column)
+			return tokens.NewTokenAtChar(TRParen, string(k.EatChar().Rune), c0)
 
 		case c0.Is(','):
-			return langtools.NewToken(TComma, string(l.EatChar().Rune), c0.Line, c0.Column)
+			return tokens.NewTokenAtChar(TComma, string(k.EatChar().Rune), c0)
 
 		case c0.Is('\r'):
-			l.EatChar()
+			k.EatChar()
 
 		case c0.Is('\n') || c0.Is(';'):
-			return langtools.NewToken(TEol, string(l.EatChar().Rune), c0.Line, c0.Column)
+			return tokens.NewToken(TEoe, string(k.EatChar().Rune), c0.Line, c0.Column)
 
 		case runes.IsWhitespace(c0.Rune):
-			tokenizers.EatWhitespaces(l, langtools.TUnknown)
+			k.EatWhitespaces()
 
 		default:
-			c := l.EatChar()
-			return langtools.NewToken(langtools.TUnknown, string(c.Rune), c.Line, c.Column)
+			c := k.EatChar()
+			return tokens.NewTokenAtChar(TInvalid, string(c.Rune), c)
 
 		}
 	}

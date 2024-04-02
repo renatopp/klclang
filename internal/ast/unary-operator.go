@@ -3,28 +3,24 @@ package ast
 import (
 	"fmt"
 
-	"github.com/renatopp/langtools"
+	"github.com/renatopp/langtools/asts"
+	"github.com/renatopp/langtools/tokens"
 )
 
 type UnaryOperator struct {
-	Token      langtools.Token
+	Token      tokens.Token
 	Operator   string
-	Expression INode
+	Expression asts.Node
 }
 
-func (u *UnaryOperator) GetToken() langtools.Token {
+func (u UnaryOperator) GetToken() tokens.Token {
 	return u.Token
 }
 
-func (u *UnaryOperator) String() string {
+func (u UnaryOperator) String() string {
 	return fmt.Sprintf("<unary-operator:%s>", u.Operator)
 }
 
-func (u *UnaryOperator) Children() []INode {
-	return []INode{u.Expression}
-}
-
-func (u *UnaryOperator) Traverse(level int, f func(int, INode)) {
-	f(level, u)
-	u.Expression.Traverse(level+1, f)
+func (u UnaryOperator) Children() []asts.Node {
+	return []asts.Node{u.Expression}
 }

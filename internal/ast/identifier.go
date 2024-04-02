@@ -3,26 +3,23 @@ package ast
 import (
 	"fmt"
 
-	"github.com/renatopp/langtools"
+	"github.com/renatopp/langtools/asts"
+	"github.com/renatopp/langtools/tokens"
 )
 
 type Identifier struct {
-	Token langtools.Token
-	Value string
+	Token tokens.Token
+	Name  string
 }
 
-func (i *Identifier) GetToken() langtools.Token {
-	return i.Token
+func (n Identifier) GetToken() tokens.Token {
+	return n.Token
 }
 
-func (i *Identifier) String() string {
-	return fmt.Sprintf("<identifier:%s>", i.Value)
+func (n Identifier) String() string {
+	return fmt.Sprintf("<identifier:%s>", n.Name)
 }
 
-func (i *Identifier) Children() []INode {
-	return []INode{}
-}
-
-func (i *Identifier) Traverse(level int, f func(int, INode)) {
-	f(level, i)
+func (n Identifier) Children() []asts.Node {
+	return []asts.Node{}
 }
