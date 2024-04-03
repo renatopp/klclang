@@ -7,7 +7,7 @@ import (
 
 type FunctionCall struct {
 	Token     tokens.Token
-	Target    asts.Node
+	Target    Identifier
 	Arguments []asts.Node
 }
 

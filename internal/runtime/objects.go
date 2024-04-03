@@ -80,3 +80,26 @@ func (f *Function) Type() ObjectType { return FUNCTION }
 func (f *Function) Bool() bool       { return true }
 func (f *Function) Number() float64  { return 1 }
 func (f *Function) String() string   { return "<function>" }
+
+// ----------------------------------------------------------------------------
+// Builtin Function
+// ----------------------------------------------------------------------------
+var BUILTIN_FUNCTION ObjectType = "BuiltinFunction"
+
+type BuiltinFunction struct {
+	docs string
+	Fn   func(env *Scope, args ...Object) Object
+}
+
+func NewBuiltinFunction(fn func(env *Scope, args ...Object) Object) *BuiltinFunction {
+	return &BuiltinFunction{
+		Fn: fn,
+	}
+}
+
+func (f *BuiltinFunction) SetDocs(d string) { f.docs = d }
+func (f *BuiltinFunction) Docs() string     { return "" }
+func (f *BuiltinFunction) Type() ObjectType { return BUILTIN_FUNCTION }
+func (f *BuiltinFunction) Bool() bool       { return true }
+func (f *BuiltinFunction) Number() float64  { return 1 }
+func (f *BuiltinFunction) String() string   { return "<function>" }

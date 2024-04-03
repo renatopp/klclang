@@ -26,6 +26,7 @@ func NewParser(lexer *KlcLexer) *KlcParser {
 	k.RegisterInfixFn(TAssign, k.infixAssignment)
 	k.RegisterInfixFn(TOperator, k.infixOperator)
 	k.RegisterInfixFn(TKeyword, k.infixKeyword)
+	k.RegisterInfixFn(TLParen, k.infixParen)
 
 	return k
 }
@@ -104,6 +105,28 @@ func (k *KlcParser) Parse() asts.Node {
 	}
 }
 
+func (k *KlcParser) parseExpressionList() []asts.Node {
+	list := []asts.Node{}
+
+	for {
+		expr := k.ParseExpression(0)
+		if expr == nil {
+			break
+		}
+
+		list = append(list, expr)
+
+		cur := k.Lexer.PeekToken()
+		if cur.IsType(TComma) {
+			k.Lexer.EatToken()
+			continue
+		}
+	}
+
+	return list
+
+}
+
 func (k *KlcParser) prefixNumber() asts.Node {
 	t := k.Lexer.EatToken()
 	v, err := strconv.ParseFloat(t.Literal, 64)
@@ -170,6 +193,24 @@ func (k *KlcParser) infixAssignment(left asts.Node) asts.Node {
 		}
 	}
 
+	if isNodeAn[ast.FunctionCall](left) {
+		left := left.(ast.FunctionCall)
+
+		for _, arg := range left.Arguments {
+			if !isNodeAn[ast.Identifier](arg) && !isNodeAn[ast.Number](arg) {
+				k.RegisterErrorWithToken("function definition only accept identifiers and numbers as parameters", arg.GetToken())
+				return nil
+			}
+		}
+
+		return ast.FunctionDef{
+			Token:  left.Token,
+			Name:   left.Target.Name,
+			Params: left.Arguments,
+			Body:   right,
+		}
+	}
+
 	k.RegisterErrorWithToken("expected identifier or function definition at left", left.GetToken())
 	return nil
 }
@@ -205,6 +246,27 @@ func (k *KlcParser) infixKeyword(left asts.Node) asts.Node {
 		Operator: "/",
 		Left:     left,
 		Right:    right,
+	}
+}
+
+func (k *KlcParser) infixParen(left asts.Node) asts.Node {
+	t := k.Lexer.EatToken()
+
+	if !isNodeAn[ast.Identifier](left) {
+		k.RegisterErrorWithToken("expected identifier at left", left.GetToken())
+		return nil
+	}
+
+	right := k.parseExpressionList()
+	if !k.ExpectType(TRParen) {
+		return nil
+	}
+
+	k.Lexer.EatToken()
+	return ast.FunctionCall{
+		Token:     t,
+		Target:    left.(ast.Identifier),
+		Arguments: right,
 	}
 }
 

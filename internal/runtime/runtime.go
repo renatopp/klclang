@@ -32,6 +32,7 @@ func NewRuntime() *Runtime {
 	}
 
 	registerConstants(r.scope)
+	registerFunctions(r.scope)
 
 	return r
 }
@@ -76,8 +77,8 @@ func (r *Runtime) eval(env *Scope, node asts.Node) Object {
 	case ast.Assignment:
 		return r.evalAssignment(env, node)
 
-	// case ast.FunctionCall:
-	// 	return r.evalFunctionCall(env, node)
+	case ast.FunctionCall:
+		return r.evalFunctionCall(env, node)
 
 	// case ast.FunctionDef:
 	// 	return r.evalFunctionDef(env, node)
@@ -155,4 +156,25 @@ func (r *Runtime) evalAssignment(env *Scope, node ast.Assignment) Object {
 	value := r.eval(env, node.Expression)
 	env.Set(node.Identifier.Name, value)
 	return value
+}
+
+func (r *Runtime) evalFunctionCall(env *Scope, node ast.FunctionCall) Object {
+	fun := env.Get(node.Target.Name)
+
+	if fun == nil {
+		// TODO: Undefined function
+	}
+
+	switch fun := fun.(type) {
+	case *BuiltinFunction:
+		args := make([]Object, len(node.Arguments))
+		for i, arg := range node.Arguments {
+			args[i] = r.eval(env, arg)
+		}
+		return fun.Fn(env, args...)
+	}
+
+	// TODO: Undefined function
+
+	return nil
 }
