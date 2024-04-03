@@ -80,8 +80,8 @@ func (r *Runtime) eval(env *Scope, node asts.Node) Object {
 	case ast.FunctionCall:
 		return r.evalFunctionCall(env, node)
 
-	// case ast.FunctionDef:
-	// 	return r.evalFunctionDef(env, node)
+	case ast.FunctionDef:
+		return r.evalFunctionDef(env, node)
 
 	default:
 		// TODO: handle error
@@ -165,16 +165,52 @@ func (r *Runtime) evalFunctionCall(env *Scope, node ast.FunctionCall) Object {
 		// TODO: Undefined function
 	}
 
+	args := make([]Object, len(node.Arguments))
+	for i, arg := range node.Arguments {
+		args[i] = r.eval(env, arg)
+	}
+
 	switch fun := fun.(type) {
 	case *BuiltinFunction:
-		args := make([]Object, len(node.Arguments))
-		for i, arg := range node.Arguments {
-			args[i] = r.eval(env, arg)
-		}
 		return fun.Fn(env, args...)
+
+	case *Function:
+		scope := fun.Scope.New()
+		// TODO: apply argument matching here
+		// TODO: apply identifiers to scope here
+		for i, arg := range fun.Matches[0].Args {
+			a := args[i]
+			identifier, ok := arg.(ast.Identifier)
+			if ok {
+				scope.Set(identifier.Name, a)
+			}
+		}
+
+		return r.eval(scope, fun.Matches[0].Body)
 	}
 
 	// TODO: Undefined function
 
 	return nil
+}
+
+func (r *Runtime) evalFunctionDef(env *Scope, node ast.FunctionDef) Object {
+	// TODO: add matching validation here?
+	var fun *Function
+	storedFun := env.GetInScope(node.Name)
+	if storedFun != nil {
+		fn, ok := storedFun.(*Function)
+		if ok {
+			fun = fn
+		}
+	}
+
+	if fun == nil {
+		fun = NewFunction()
+		fun.Scope = env
+	}
+
+	fun.AddMatch(node.Params, node.Body)
+	env.Set(node.Name, fun)
+	return fun
 }

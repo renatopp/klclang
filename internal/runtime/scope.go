@@ -1,5 +1,10 @@
 package runtime
 
+import (
+	"fmt"
+	"strings"
+)
+
 type Scope struct {
 	depth  int
 	store  map[string]Object
@@ -26,7 +31,6 @@ func (s *Scope) Set(name string, value Object) {
 	s.store[name] = value
 }
 
-// TODO: Find variable in the current scope and all parent scopes
 func (s *Scope) Get(name string) Object {
 	if value, ok := s.store[name]; ok {
 		return value
@@ -39,10 +43,35 @@ func (s *Scope) Get(name string) Object {
 	return nil
 }
 
+func (s *Scope) GetInScope(name string) Object {
+	if value, ok := s.store[name]; ok {
+		return value
+	}
+
+	return nil
+}
+
 func (s *Scope) Depth() int {
 	return s.depth
 }
 
 func (s *Scope) Parent() *Scope {
 	return s.parent
+}
+
+func (s *Scope) DebugString() string {
+	result := fmt.Sprintf("Scope at depth %d\n", s.depth)
+	for k, v := range s.store {
+		result += fmt.Sprintf("- %s: %s\n", k, v.String())
+	}
+	return result
+}
+
+func (s *Scope) DebugStringRecursive() string {
+	result := s.DebugString()
+	if s.parent != nil {
+		result += "- inherits from "
+		result += strings.ReplaceAll(s.parent.DebugStringRecursive(), "\n", "\n  ")
+	}
+	return result
 }

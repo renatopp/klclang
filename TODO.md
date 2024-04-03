@@ -10,10 +10,10 @@
 - [x] Function call parser
 - [x] Builtin Function call evaluator
 - [x] Validate function def parameters
+- [x] Function def parser
+- [x] Function def evaluator
 
-- [ ] Custom Function call evaluator
-- [ ] Function def parser
-- [ ] Function def evaluator
+- [ ] Custom Function call evaluator with pattern matching
 - [ ] Validate builtin function call arguments
 
 - [ ] Create builtin functions

@@ -124,7 +124,6 @@ func (k *KlcParser) parseExpressionList() []asts.Node {
 	}
 
 	return list
-
 }
 
 func (k *KlcParser) prefixNumber() asts.Node {

@@ -63,16 +63,27 @@ func (n *Number) String() string {
 // ----------------------------------------------------------------------------
 var FUNCTION ObjectType = "Function"
 
-type Function struct {
-	docs  string
-	Args  []asts.Node
-	Body  asts.Node
-	Scope *Scope
+type FunctionMatch struct {
+	Args []asts.Node
+	Body asts.Node
 }
 
-// func NewFunction(value float64) *Number {
-// 	return &Number{Value: value}
-// }
+type Function struct {
+	docs    string
+	Matches []FunctionMatch
+	Scope   *Scope
+}
+
+// TODO: Set scope here
+func NewFunction() *Function {
+	return &Function{}
+}
+
+func (f *Function) AddMatch(args []asts.Node, body asts.Node) error {
+	// TODO: validate matches here
+	f.Matches = append(f.Matches, FunctionMatch{Args: args, Body: body})
+	return nil
+}
 
 func (f *Function) SetDocs(d string) { f.docs = d }
 func (f *Function) Docs() string     { return "" }
