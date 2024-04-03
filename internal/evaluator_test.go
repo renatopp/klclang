@@ -60,4 +60,12 @@ func TestFunctions(t *testing.T) {
 		fact(n) = n * fact(n-1)
 		fact(5)
 	`, "120")
+	run(t, `
+		f() = 1
+		f(1) = 2
+		f(2, x) = 3
+		f(x) = 4
+
+		f() + f(1) + f(2, 3) + f(4)
+	`, "10")
 }

@@ -2,6 +2,7 @@ package runtime
 
 import (
 	"math"
+	"strings"
 
 	"github.com/renatopp/klclang/internal/ast"
 	"github.com/renatopp/langtools/asts"
@@ -202,13 +203,17 @@ func (r *Runtime) evalFunctionCall(env *Scope, node ast.FunctionCall) Object {
 		matchIdx := -1
 
 		// Pattern matching
+		// println("pattern matching:", node.Target.Name)
 		argsStr := ""
 		for _, arg := range args {
 			argsStr += arg.String() + ", "
 		}
+		// println(">>>", argsStr)
 
 		for idx, match := range fun.Matches {
+			print(idx, " | ", padLeft(match.DebugString(), 100), " | ")
 			if len(match.Params) != len(args) {
+				// println("different number of arguments")
 				continue
 			}
 
@@ -226,11 +231,13 @@ func (r *Runtime) evalFunctionCall(env *Scope, node ast.FunctionCall) Object {
 					}
 				}
 
+				// println("unmatched value", n.Value, "!=", args[i].Number())
 				accepted = false
 				break
 			}
 
 			if accepted {
+				// println("accepted!")
 				matchIdx = idx
 				break
 			}
@@ -248,7 +255,7 @@ func (r *Runtime) evalFunctionCall(env *Scope, node ast.FunctionCall) Object {
 			return r.eval(scope, fun.Matches[matchIdx].Body)
 		}
 
-		return r.RegisterError("no matching function", node)
+		return r.RegisterError("no matching function", node.Target)
 
 	default:
 		return r.RegisterError("unknown function type", node)
@@ -270,6 +277,15 @@ func (r *Runtime) evalFunctionDef(env *Scope, node ast.FunctionDef) Object {
 	}
 
 	fun.AddMatch(node.Params, node.Body)
+	// TODO: add matching validation here?
 	env.Set(node.Name, fun)
 	return fun
+}
+
+func padLeft(msg string, length int) string {
+	if len(msg) >= length {
+		return msg
+	}
+
+	return strings.Repeat(" ", length-len(msg)) + msg
 }

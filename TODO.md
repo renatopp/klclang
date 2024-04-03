@@ -17,6 +17,8 @@
 - [x] Add runtime error to builtin functions
 - [x] Validate builtin function call arguments
 - [x] Custom Function call evaluator with pattern matching
+- [x] Adding klcc command
+- [x] Finishing klc command
 
 - [ ] Assertion utility
 - [ ] Add comments and in-code docs

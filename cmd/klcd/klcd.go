@@ -1,4 +1,4 @@
-package cmds
+package main
 
 import (
 	"os"
@@ -6,6 +6,10 @@ import (
 	"github.com/renatopp/klclang/internal"
 	"github.com/renatopp/langtools/asts"
 )
+
+func main() {
+	Debug([]byte(os.Args[1]))
+}
 
 func Debug(code []byte) {
 	{

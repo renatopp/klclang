@@ -1,10 +1,17 @@
 package cmds
 
-func Run(code []byte) {
-	println("Run", code)
+import (
+	"os"
 
-	// lexer := internal.NewLexer()
-	// for i, t := range lexer.Iter() {
-	// 	println(i, t.Type)
-	// }
+	"github.com/renatopp/klclang/internal"
+)
+
+func Run(code []byte) {
+	obj, err := internal.Run(code)
+	if err != nil {
+		println(err.Error())
+		os.Exit(1)
+	}
+
+	println(obj.String())
 }
