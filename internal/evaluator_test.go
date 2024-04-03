@@ -31,3 +31,33 @@ func TestExpressions(t *testing.T) {
 	run(t, "2^-2", "0.250000")
 	run(t, "-2^2", "4")
 }
+
+func TestVariables(t *testing.T) {
+	run(t, "a = 1", "1")
+	run(t, "a = 1; a", "1")
+	run(t, "a = 1; b = 2; a + b", "3")
+	run(t, "a = 1; b = 2; a + b; a = 3; a + b", "5")
+}
+
+func TestFunctions(t *testing.T) {
+	run(t, "f() = 1; f()", "1")
+	run(t, "f(x) = x*2; f(5)", "10")
+	run(t, `
+		f(0) = 1;
+		f(1) = 2;
+		f(x) = x*2;
+
+		f(0) + f(1) + f(5)
+	`, "13")
+	run(t, `
+		fib(0) = 1;
+		fib(1) = 1;
+		fib(n) = fib(n-1) + fib(n-2);
+		fib(5)
+	`, "8")
+	run(t, `
+		fact(0) = 1
+		fact(n) = n * fact(n-1)
+		fact(5)
+	`, "120")
+}

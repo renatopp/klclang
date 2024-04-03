@@ -12,15 +12,12 @@
 - [x] Validate function def parameters
 - [x] Function def parser
 - [x] Function def evaluator
+- [x] Create builtin functions
+- [x] Add runtime errors
+- [x] Add runtime error to builtin functions
+- [x] Validate builtin function call arguments
+- [x] Custom Function call evaluator with pattern matching
 
-- [ ] Custom Function call evaluator with pattern matching
-- [ ] Validate builtin function call arguments
-
-- [ ] Create builtin functions
-
-- [ ] Add runtime errors
-- [ ] Add runtime to builtin functions
 - [ ] Assertion utility
-
 - [ ] Add comments and in-code docs
 - [ ] Add help command to see docs

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/renatopp/klclang/internal/runtime"
 	"github.com/renatopp/langtools"
 	"github.com/renatopp/langtools/lexers"
 	"github.com/renatopp/langtools/parsers"
@@ -28,8 +29,8 @@ func ConvertParserErrors(input []byte, err []parsers.ParserError) error {
 	return convertError("parser", input, errs)
 }
 
-func ConvertRuntimeErrors(input []byte, err []langtools.Error) error {
-	return convertError("runtime", input, err)
+func ConvertRuntimeErrors(input []byte, err []runtime.RuntimeError) error {
+	return errors.New(convertMainError("runtime", input, err[0]))
 }
 
 func convertError(tp string, input []byte, err []langtools.Error) error {

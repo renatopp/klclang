@@ -51,6 +51,14 @@ func (s *Scope) GetInScope(name string) Object {
 	return nil
 }
 
+func (s *Scope) Keys() []string {
+	keys := make([]string, 0, len(s.store))
+	for k := range s.store {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
 func (s *Scope) Depth() int {
 	return s.depth
 }

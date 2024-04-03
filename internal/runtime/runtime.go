@@ -7,34 +7,45 @@ import (
 	"github.com/renatopp/langtools/asts"
 )
 
-type RuntimeError struct {
-	node asts.Node
-	msg  string
-}
-
-func (e RuntimeError) Error() string {
-	return e.msg
-}
-
-func (e RuntimeError) At() (int, int) {
-	token := e.node.GetToken()
-	return token.Line, token.Column
-}
-
 type Runtime struct {
-	scope *Scope
-	// errors []error
+	scope  *Scope
+	errors []RuntimeError
 }
 
 func NewRuntime() *Runtime {
 	r := &Runtime{
-		scope: NewScope(),
+		scope:  NewScope(),
+		errors: make([]RuntimeError, 0),
 	}
 
 	registerConstants(r.scope)
 	registerFunctions(r.scope)
 
 	return r
+}
+
+func (r *Runtime) HasErrors() bool {
+	return len(r.errors) > 0
+}
+
+func (r *Runtime) Errors() []RuntimeError {
+	return r.errors
+}
+
+func (r *Runtime) RegisterError(msg string, node asts.Node) Object {
+	r.errors = append(r.errors, RuntimeError{
+		msg:  msg,
+		node: node,
+	})
+	return nil
+}
+
+func (r *Runtime) ClearErrors() {
+	r.errors = make([]RuntimeError, 0)
+}
+
+func (r *Runtime) Scope() *Scope {
+	return r.scope
 }
 
 func (r *Runtime) Eval(node asts.Node) Object {
@@ -47,15 +58,7 @@ func (r *Runtime) Eval(node asts.Node) Object {
 	return obj
 }
 
-// func (r *Runtime) registerError(msg string, node asts.Node) {
-// 	r.errors = append(r.errors, RuntimeError{
-// 		msg:  msg,
-// 		node: node,
-// 	})
-// }
-
 func (r *Runtime) eval(env *Scope, node asts.Node) Object {
-	// println("evaluating:", node.String(), reflect.TypeOf(node).String())
 	// Push node in the scope
 
 	switch node := node.(type) {
@@ -84,7 +87,7 @@ func (r *Runtime) eval(env *Scope, node asts.Node) Object {
 		return r.evalFunctionDef(env, node)
 
 	default:
-		// TODO: handle error
+		r.RegisterError("unknown node type", node)
 		return nil
 
 	}
@@ -94,6 +97,9 @@ func (r *Runtime) evalBlock(env *Scope, node ast.Block) Object {
 	var result Object
 	for _, statement := range node.Statements {
 		result = r.eval(env, statement)
+		if result == nil {
+			break
+		}
 	}
 	return result
 }
@@ -105,16 +111,18 @@ func (r *Runtime) evalNumber(_ *Scope, node ast.Number) Object {
 func (r *Runtime) evalIdentifier(env *Scope, node ast.Identifier) Object {
 	value := env.Get(node.Name)
 	if value == nil {
-
-		// TODO: Panic
+		return r.RegisterError("undefined identifier", node)
 	}
 	return value
 }
 
 func (r *Runtime) evalUnaryOperator(env *Scope, node ast.UnaryOperator) Object {
-	// TODO: Consider panic cases
-	// TODO: Consider type conversion
-	right := r.eval(env, node.Expression).Number()
+	rightExpr := r.eval(env, node.Expression)
+	if rightExpr == nil {
+		return r.RegisterError("undefined expression", node)
+	}
+
+	right := rightExpr.Number()
 
 	switch node.Operator {
 	case "+":
@@ -122,16 +130,23 @@ func (r *Runtime) evalUnaryOperator(env *Scope, node ast.UnaryOperator) Object {
 	case "-":
 		return NewNumber(-right)
 	default:
-		// TODO: Panic
-		return nil
+		return r.RegisterError("unknown unary operator", node)
 	}
 }
 
 func (r *Runtime) evalBinaryOperator(env *Scope, node ast.BinaryOperator) Object {
-	// TODO: Consider panic cases
-	// TODO: Consider type conversion
-	left := r.eval(env, node.Left).Number()
-	right := r.eval(env, node.Right).Number()
+	leftExpr := r.eval(env, node.Left)
+	if leftExpr == nil {
+		return r.RegisterError("undefined left expression", node)
+	}
+
+	rightExpr := r.eval(env, node.Right)
+	if rightExpr == nil {
+		return r.RegisterError("undefined right expression", node)
+	}
+
+	left := leftExpr.Number()
+	right := rightExpr.Number()
 
 	var result float64 = 0
 	switch node.Operator {
@@ -147,6 +162,8 @@ func (r *Runtime) evalBinaryOperator(env *Scope, node ast.BinaryOperator) Object
 		result = float64(int(left) % int(right))
 	case "^":
 		result = math.Pow(left, right)
+	default:
+		return r.RegisterError("unknown binary operator", node)
 	}
 
 	return NewNumber(result)
@@ -160,42 +177,85 @@ func (r *Runtime) evalAssignment(env *Scope, node ast.Assignment) Object {
 
 func (r *Runtime) evalFunctionCall(env *Scope, node ast.FunctionCall) Object {
 	fun := env.Get(node.Target.Name)
-
 	if fun == nil {
-		// TODO: Undefined function
+		return r.RegisterError("undefined function", node.Target)
 	}
 
 	args := make([]Object, len(node.Arguments))
 	for i, arg := range node.Arguments {
 		args[i] = r.eval(env, arg)
+		if args[i] == nil {
+			return nil
+		}
 	}
 
 	switch fun := fun.(type) {
 	case *BuiltinFunction:
-		return fun.Fn(env, args...)
+		obj := fun.Fn(env, args...)
+		if obj.Type() == ERROR {
+			return r.RegisterError(obj.String(), node)
+		}
+		return obj
 
 	case *Function:
 		scope := fun.Scope.New()
-		// TODO: apply argument matching here
-		// TODO: apply identifiers to scope here
-		for i, arg := range fun.Matches[0].Args {
-			a := args[i]
-			identifier, ok := arg.(ast.Identifier)
-			if ok {
-				scope.Set(identifier.Name, a)
+		matchIdx := -1
+
+		// Pattern matching
+		argsStr := ""
+		for _, arg := range args {
+			argsStr += arg.String() + ", "
+		}
+
+		for idx, match := range fun.Matches {
+			if len(match.Params) != len(args) {
+				continue
+			}
+
+			accepted := true
+			for i, arg := range match.Params {
+				_, ok := arg.(ast.Identifier)
+				if ok {
+					continue
+				}
+
+				n, ok := arg.(ast.Number)
+				if ok {
+					if n.Value == args[i].Number() {
+						continue
+					}
+				}
+
+				accepted = false
+				break
+			}
+
+			if accepted {
+				matchIdx = idx
+				break
 			}
 		}
 
-		return r.eval(scope, fun.Matches[0].Body)
+		// Function call
+		if matchIdx >= 0 {
+			for i, arg := range fun.Matches[matchIdx].Params {
+				a := args[i]
+				identifier, ok := arg.(ast.Identifier)
+				if ok {
+					scope.Set(identifier.Name, a)
+				}
+			}
+			return r.eval(scope, fun.Matches[matchIdx].Body)
+		}
+
+		return r.RegisterError("no matching function", node)
+
+	default:
+		return r.RegisterError("unknown function type", node)
 	}
-
-	// TODO: Undefined function
-
-	return nil
 }
 
 func (r *Runtime) evalFunctionDef(env *Scope, node ast.FunctionDef) Object {
-	// TODO: add matching validation here?
 	var fun *Function
 	storedFun := env.GetInScope(node.Name)
 	if storedFun != nil {
@@ -206,8 +266,7 @@ func (r *Runtime) evalFunctionDef(env *Scope, node ast.FunctionDef) Object {
 	}
 
 	if fun == nil {
-		fun = NewFunction()
-		fun.Scope = env
+		fun = NewFunction(env)
 	}
 
 	fun.AddMatch(node.Params, node.Body)

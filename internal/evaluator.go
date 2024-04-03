@@ -2,15 +2,10 @@ package internal
 
 import (
 	"github.com/renatopp/klclang/internal/runtime"
-	"github.com/renatopp/langtools/asts"
 )
 
 func NewEvaluator() *runtime.Runtime {
 	return runtime.NewRuntime()
-}
-
-func Eval(node asts.Node) runtime.Object {
-	return NewEvaluator().Eval(node)
 }
 
 func Run(code []byte) (runtime.Object, error) {
@@ -25,5 +20,11 @@ func Run(code []byte) (runtime.Object, error) {
 		return nil, ConvertParserErrors(code, parser.Errors())
 	}
 
-	return Eval(node), nil
+	runtime := NewEvaluator()
+	obj := runtime.Eval(node)
+
+	if runtime.HasErrors() {
+		return nil, ConvertRuntimeErrors(code, runtime.Errors())
+	}
+	return obj, nil
 }
