@@ -8,10 +8,11 @@ import (
 )
 
 type FunctionDef struct {
-	Token  tokens.Token
-	Name   string
-	Params []asts.Node
-	Body   asts.Node
+	Token         tokens.Token
+	Name          string
+	Documentation string
+	Params        []asts.Node
+	Body          asts.Node
 }
 
 func (d FunctionDef) GetToken() tokens.Token {
@@ -19,7 +20,11 @@ func (d FunctionDef) GetToken() tokens.Token {
 }
 
 func (d FunctionDef) String() string {
-	return fmt.Sprintf("<function-def:%s>", d.Name)
+	docs := ""
+	if d.Documentation != "" {
+		docs = fmt.Sprintf(" -- %s", d.Documentation)
+	}
+	return fmt.Sprintf("<function-def:%s>%s", d.Name, printRaw(docs))
 }
 
 func (d FunctionDef) Children() []asts.Node {

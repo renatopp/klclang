@@ -2,6 +2,7 @@ package internal
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/renatopp/klclang/internal/ast"
 	"github.com/renatopp/langtools/asts"
@@ -11,6 +12,9 @@ import (
 
 type KlcParser struct {
 	*parsers.PrattParser
+
+	previousComment    string
+	previousNodeInLine asts.Node
 }
 
 func NewParser(lexer *KlcLexer) *KlcParser {
@@ -85,6 +89,23 @@ func (k *KlcParser) Parse() asts.Node {
 	for !cur.IsType(TEof) {
 		switch {
 		case cur.IsType(TEoe):
+			if cur.IsLiteral("\n") {
+				k.previousNodeInLine = nil
+			}
+			k.Lexer.EatToken()
+
+		case cur.IsType(TComment):
+			k.appendComment(cur.Literal)
+
+			if k.previousNodeInLine != nil {
+				switch node := k.previousNodeInLine.(type) {
+				case *ast.Assignment:
+					node.Documentation = k.previousComment
+				case *ast.FunctionDef:
+					node.Documentation = k.previousComment
+				}
+			}
+
 			k.Lexer.EatToken()
 
 		default:
@@ -94,12 +115,14 @@ func (k *KlcParser) Parse() asts.Node {
 				return nil
 			}
 
+			k.previousComment = ""
+			k.previousNodeInLine = node
 			statements = append(statements, node)
 		}
 		cur = k.Lexer.PeekToken()
 	}
 
-	return ast.Block{
+	return &ast.Block{
 		Token:      first,
 		Statements: statements,
 	}
@@ -133,7 +156,7 @@ func (k *KlcParser) prefixNumber() asts.Node {
 		k.RegisterErrorWithToken(err.Error(), t)
 	}
 
-	return ast.Number{
+	return &ast.Number{
 		Token: t,
 		Value: v,
 	}
@@ -141,7 +164,7 @@ func (k *KlcParser) prefixNumber() asts.Node {
 
 func (k *KlcParser) prefixIdentifier() asts.Node {
 	t := k.Lexer.EatToken()
-	return ast.Identifier{
+	return &ast.Identifier{
 		Token: t,
 		Name:  t.Literal,
 	}
@@ -167,12 +190,12 @@ func (k *KlcParser) prefixParen() asts.Node {
 func (k *KlcParser) prefixOperator() asts.Node {
 	cur := k.Lexer.EatToken()
 
-	if !cur.IsOneOfLiterals("-", "+") {
+	if !cur.IsOneOfLiterals("-", "+", "!") {
 		k.RegisterErrorWithToken("expected unary operator", cur)
 		return nil
 	}
 
-	return ast.UnaryOperator{
+	return &ast.UnaryOperator{
 		Token:      cur,
 		Operator:   cur.Literal,
 		Expression: k.ParseExpression(PRECEDENCE_UNARY),
@@ -183,30 +206,32 @@ func (k *KlcParser) infixAssignment(left asts.Node) asts.Node {
 	cur := k.Lexer.EatToken()
 	right := k.ParseExpression(k.PrecedenceFn(cur))
 
-	if isNodeAn[ast.Identifier](left) {
-		return ast.Assignment{
-			Token:      cur,
-			Operator:   cur.Literal,
-			Identifier: left.(ast.Identifier),
-			Expression: right,
+	if isNodeAn[*ast.Identifier](left) {
+		return &ast.Assignment{
+			Token:         cur,
+			Operator:      cur.Literal,
+			Documentation: k.previousComment,
+			Identifier:    left.(*ast.Identifier),
+			Expression:    right,
 		}
 	}
 
-	if isNodeAn[ast.FunctionCall](left) {
-		left := left.(ast.FunctionCall)
+	if isNodeAn[*ast.FunctionCall](left) {
+		left := left.(*ast.FunctionCall)
 
 		for _, arg := range left.Arguments {
-			if !isNodeAn[ast.Identifier](arg) && !isNodeAn[ast.Number](arg) {
+			if !isNodeAn[*ast.Identifier](arg) && !isNodeAn[*ast.Number](arg) {
 				k.RegisterErrorWithToken("function definition only accept identifiers and numbers as parameters", arg.GetToken())
 				return nil
 			}
 		}
 
-		return ast.FunctionDef{
-			Token:  left.Token,
-			Name:   left.Target.Name,
-			Params: left.Arguments,
-			Body:   right,
+		return &ast.FunctionDef{
+			Token:         left.Token,
+			Name:          left.Target.Name,
+			Documentation: k.previousComment,
+			Params:        left.Arguments,
+			Body:          right,
 		}
 	}
 
@@ -223,7 +248,7 @@ func (k *KlcParser) infixOperator(left asts.Node) asts.Node {
 		return nil
 	}
 
-	return ast.BinaryOperator{
+	return &ast.BinaryOperator{
 		Token:    cur,
 		Operator: cur.Literal,
 		Left:     left,
@@ -240,7 +265,7 @@ func (k *KlcParser) infixKeyword(left asts.Node) asts.Node {
 		return nil
 	}
 
-	return ast.BinaryOperator{
+	return &ast.BinaryOperator{
 		Token:    t,
 		Operator: "/",
 		Left:     left,
@@ -251,7 +276,7 @@ func (k *KlcParser) infixKeyword(left asts.Node) asts.Node {
 func (k *KlcParser) infixParen(left asts.Node) asts.Node {
 	t := k.Lexer.EatToken()
 
-	if !isNodeAn[ast.Identifier](left) {
+	if !isNodeAn[*ast.Identifier](left) {
 		k.RegisterErrorWithToken("expected identifier at left", left.GetToken())
 		return nil
 	}
@@ -262,10 +287,27 @@ func (k *KlcParser) infixParen(left asts.Node) asts.Node {
 	}
 
 	k.Lexer.EatToken()
-	return ast.FunctionCall{
+	return &ast.FunctionCall{
 		Token:     t,
-		Target:    left.(ast.Identifier),
+		Target:    left.(*ast.Identifier),
 		Arguments: right,
+	}
+}
+
+func (k *KlcParser) appendComment(msg string) {
+	msg = strings.TrimSpace(msg)
+	switch {
+	case k.previousComment == "":
+		k.previousComment = msg
+
+	case msg == "":
+		k.previousComment = k.previousComment + "\n"
+
+	case strings.HasSuffix(k.previousComment, "\n"):
+		k.previousComment = k.previousComment + msg
+
+	default:
+		k.previousComment = k.previousComment + " " + msg
 	}
 }
 

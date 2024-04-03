@@ -73,7 +73,6 @@ example == 3 -- this is a comment
 	results := lexer.All()
 
 	for i := range expected {
-		t.Logf("[%d]Expected: %v, Result: %v", i, expected[i], results[i])
 		assert.Equal(t, expected[i].Type, results[i].Type)
 		assert.Equal(t, expected[i].Literal, results[i].Literal)
 	}

@@ -1,5 +1,7 @@
 # TODO
 
+## Language
+
 - [x] Expression parser
 - [x] Expression evaluator
 - [x] TO expression parser
@@ -19,7 +21,20 @@
 - [x] Custom Function call evaluator with pattern matching
 - [x] Adding klcc command
 - [x] Finishing klc command
+- [x] Assertion utility
+- [x] Add help command to see docs
+- [x] Add comments and in-code docs
+- [x] Add += -= /= ... operators
 
-- [ ] Assertion utility
-- [ ] Add comments and in-code docs
-- [ ] Add help command to see docs
+## Documentation
+
+- [x] Final language documentation
+- [ ] Readme
+- [ ] How to install documentation (curl linux/window)
+- [ ] Static page?
+- [ ] Online interpreter in static page?
+
+## Tooling
+
+- [ ] Pipeline with builds for all platforms
+- [ ] Static page deployment

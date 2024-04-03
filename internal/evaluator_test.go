@@ -39,6 +39,38 @@ func TestVariables(t *testing.T) {
 	run(t, "a = 1; b = 2; a + b; a = 3; a + b", "5")
 }
 
+func TestOperator(t *testing.T) {
+	run(t, "1 == 1", "1")
+	run(t, "1 == 2", "0")
+	run(t, "1 != 1", "0")
+	run(t, "1 != 2", "1")
+	run(t, "1 < 2", "1")
+	run(t, "1 > 2", "0")
+	run(t, "1 <= 2", "1")
+	run(t, "1 >= 2", "0")
+
+	run(t, "1 + 1", "2")
+	run(t, "1 - 1", "0")
+	run(t, "1 / 2", "0.500000")
+	run(t, "3 * 2", "6")
+	run(t, "2 ^ 3", "8")
+
+	run(t, "+1", "1")
+	run(t, "-1", "-1")
+	run(t, "!1", "0")
+	run(t, "!0", "1")
+
+	run(t, "0 and 0", "0")
+	run(t, "0 and 1", "0")
+	run(t, "1 and 0", "0")
+	run(t, "1 and 1", "1")
+
+	run(t, "0 or 0", "0")
+	run(t, "0 or 1", "1")
+	run(t, "1 or 0", "1")
+	run(t, "1 or 1", "1")
+}
+
 func TestFunctions(t *testing.T) {
 	run(t, "f() = 1; f()", "1")
 	run(t, "f(x) = x*2; f(5)", "10")
@@ -68,4 +100,13 @@ func TestFunctions(t *testing.T) {
 
 		f() + f(1) + f(2, 3) + f(4)
 	`, "10")
+}
+
+func TestAssignment(t *testing.T) {
+	run(t, `a = 1; a = 2; a`, "2")
+	run(t, `a = 1; a += 2; a`, "3")
+	run(t, `a = 1; a -= 2; a`, "-1")
+	run(t, `a = 1; a *= 2; a`, "2")
+	run(t, `a = 1; a /= 2; a`, "0.500000")
+	run(t, `a = 1; a ^= 2; a`, "1")
 }

@@ -1,0 +1,155 @@
+# Builtin
+
+## Functions
+
+| **Category**     | **Name**      | **Description**                                                                                          |
+| ---------------- | ------------- | -------------------------------------------------------------------------------------------------------- |
+| **General**      | `assert`      | Assert returns true if the argument is true, otherwise it returns an error message.                      |
+|                  | `help`        | Help prints the documentation of a function.                                                             |
+|                  |               |                                                                                                          |
+| **Mathematical** | `abs`         | Abs returns the absolute value of a number.                                                              |
+|                  | `acos`        | Acos returns the arccosine of a number.                                                                  |
+|                  | `acosh`       | Acosh returns the hyperbolic arccosine of a number.                                                      |
+|                  | `asin`        | Asin returns the arcsine of a number.                                                                    |
+|                  | `asinh`       | Asinh returns the hyperbolic arcsine of a number.                                                        |
+|                  | `atan`        | Atan returns the arctangent of a number.                                                                 |
+|                  | `atan2`       | Atan2 returns the arctangent of y/x, using the signs of the two to determine the quadrant of the result. |
+|                  | `atanh`       | Atanh returns the hyperbolic arctangent of a number.                                                     |
+|                  | `cbrt`        | Cbrt returns the cube root of a number.                                                                  |
+|                  | `ceil`        | Ceil returns the smallest integer value greater than or equal to a number.                               |
+|                  | `copySign`    | Copysign returns the first argument with the sign of the second argument.                                |
+|                  | `cos`         | Cos returns the cosine of a number.                                                                      |
+|                  | `cosh`        | Cosh returns the hyperbolic cosine of a number.                                                          |
+|                  | `dim`         | Dim returns the maximum of x-y or 0.                                                                     |
+|                  | `erf`         | Erf returns the error function of a number.                                                              |
+|                  | `erfc`        | Erfc returns the complementary error function of a number.                                               |
+|                  | `erfcinv`     | Erfcinv returns the inverse of the complementary error function of a number.                             |
+|                  | `erfinv`      | Erfinv returns the inverse of the error function of a number.                                            |
+|                  | `exp`         | Exp returns e**x, the base-e exponential of x.                                                           |
+|                  | `exp2`        | Exp2 returns 2**x, the base-2 exponential of x.                                                          |
+|                  | `expm1`       | Expm1 returns e**x - 1, the base-e exponential of x minus 1.                                             |
+|                  | `fma`         | FMA returns x*y+z with no intermediate rounding.                                                         |
+|                  | `floor`       | Floor returns the largest integer value less than or equal to a number.                                  |
+|                  | `gamma`       | Gamma returns the gamma function of a number.                                                            |
+|                  | `hypot`       | Hypot returns the square root of x*x + y*y.                                                              |
+|                  | `ilogb`       | Ilogb returns the binary exponent of a number.                                                           |
+|                  | `inf`         | Inf returns positive infinity.                                                                           |
+|                  | `isInf`       | IsInf reports whether a number is positive infinity.                                                     |
+|                  | `j0`          | J0 returns the Bessel function of the first kind of order 0.                                             |
+|                  | `j1`          | J1 returns the Bessel function of the first kind of order 1.                                             |
+|                  | `jn`          | Jn returns the Bessel function of the first kind of order n.                                             |
+|                  | `ldexp`       | Ldexp returns x * 2**exp.                                                                                |
+|                  | `lgamma`      | Lgamma returns the natural logarithm of the absolute value of the gamma function of a number.            |
+|                  | `log`         | Log returns the natural logarithm of a number.                                                           |
+|                  | `log10`       | Log10 returns the decimal logarithm of a number.                                                         |
+|                  | `log1p`       | Log1p returns the natural logarithm of 1 plus a number.                                                  |
+|                  | `log2`        | Log2 returns the binary logarithm of a number.                                                           |
+|                  | `max`         | Max returns the larger of two numbers.                                                                   |
+|                  | `min`         | Min returns the smaller of two numbers.                                                                  |
+|                  | `mod`         | Mod returns the floating-point remainder of x/y.                                                         |
+|                  | `int`         | Int returns the integer parts of a number.                                                               |
+|                  | `frac`        | Frac returns the fractional parts of a number.                                                           |
+|                  | `nextAfter`   | Nextafter returns the next representable float64 value after x in the direction of y.                    |
+|                  | `pow`         | Pow returns x**y, the base-x exponential of y.                                                           |
+|                  | `pow10`       | Pow10 returns 10**n, the base-10 exponential of n.                                                       |
+|                  | `remainder`   | Remainder returns the IEEE 754 floating-point remainder of x/y.                                          |
+|                  | `round`       | Round returns the nearest integer, rounding half away from zero.                                         |
+|                  | `roundToEven` | RoundToEven returns the nearest integer, rounding ties to even.                                          |
+|                  | `sign`        | Sign returns the sign of a number.                                                                       |
+|                  | `sin`         | Sin returns the sine of a number.                                                                        |
+|                  | `sinh`        | Sinh returns the hyperbolic sine of a number.                                                            |
+|                  | `sqrt`        | Sqrt returns the square root of a number.                                                                |
+|                  | `tan`         | Tan returns the tangent of a number.                                                                     |
+|                  | `tanh`        | Tanh returns the hyperbolic tangent of a number.                                                         |
+|                  | `trunc`       | Trunc returns the integer value of a number.                                                             |
+|                  | `y0`          | Y0 returns the Bessel function of the second kind of order 0.                                            |
+|                  | `y1`          | Y1 returns the Bessel function of the second kind of order 1.                                            |
+|                  | `yn`          | Yn returns the Bessel function of the second kind of order n.                                            |
+|                  |               |                                                                                                          |
+| **Random**       | `rand`        | Rand returns a random number in the range [0.0, 1.0).                                                    |
+|                  | `randExp`     | RandExp returns a random number drawn from an exponential distribution with rate lambda.                 |
+|                  | `randInt`     | RandInt returns a random integer in the range [min, max).                                                |
+|                  | `randIntn`    | RandIntn returns a random integer in the range [0, max).                                                 |
+|                  | `randNorm`    | RandNorm returns a random number drawn from a normal distribution with mean 0 and standard deviation 1.  |
+
+## Constants
+
+| **Category** | **Variable** | **Value**         | **Description**                                                                                                                                                                                                     |
+| ------------ | ------------ | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **General**  | `pi`         | 3.141593          | Pi, a mathematical constant equal to the ratio of a circle's circumference to its diameter.                                                                                                                         |
+|              | `e`          | 2.718282          | Euler's number, a mathematical constant equal to the base of the natural logarithm.                                                                                                                                 |
+|              | `phi`        | 1.618033988749895 | Golden ratio, a mathematical constant equal to the ratio of two quantities such that the ratio of the sum of the quantities to the larger quantity is equal to the ratio of the larger quantity to the smaller one. |
+|              | `inf`        | inf               | Infinity, a mathematical concept representing a quantity that is greater than any real number.                                                                                                                      |
+|              | `ninf`       | -inf              | Negative infinity, a mathematical concept representing a quantity that is less than any real number.                                                                                                                |
+|              |              |                   |                                                                                                                                                                                                                     |
+| **Angle**    | `rad`        | 1                 | Radian, a unit of angle equal to the angle subtended at the center of a circle by an arc equal in length to the radius of the circle.                                                                               |
+|              | `deg`        | 57.295780         | Degree, a unit of angle equal to 1/360 of a circle.                                                                                                                                                                 |
+|              | `grad`       | 63.6619           | Gradian, a unit of angle equal to 1/400 of a circle.                                                                                                                                                                |
+|              | `arcmin`     | 3437.75           | Arcminute, a unit of angle equal to 1/60 of a degree.                                                                                                                                                               |
+|              | `arcsec`     | 206265            | Arcsecond, a unit of angle equal to 1/60 of an arcminute.                                                                                                                                                           |
+|              |              |                   |                                                                                                                                                                                                                     |
+| **Weight**   | `mg`         | 0.000001          | Milligram, a unit of mass equal to 1/1000 grams.                                                                                                                                                                    |
+|              | `cg`         | 0.00001           | Centigram, a unit of mass equal to 1/100 grams.                                                                                                                                                                     |
+|              | `dg`         | 0.0001            | Decigram, a unit of mass equal to 1/10 grams.                                                                                                                                                                       |
+|              | `g`          | 0.001             | Gram, a unit of mass equal to 1 grams.                                                                                                                                                                              |
+|              | `kg`         | 1                 | Kilogram, a unit of mass equal to 1000 grams.                                                                                                                                                                       |
+|              | `ton`        | 1000              | Ton, a unit of mass equal to 1000 kilograms.                                                                                                                                                                        |
+|              | `oz`         | 0.028349523125    | Ounce, a unit of mass equal to 1/16 pounds.                                                                                                                                                                         |
+|              | `lb`         | 0.45359237        | Pound, a unit of mass equal to 16 ounces.                                                                                                                                                                           |
+|              |              |                   |                                                                                                                                                                                                                     |
+| **Volume**   | `ml`         | 0.001             | Milliliter, a unit of volume equal to 1/1000 liters.                                                                                                                                                                |
+|              | `l`          | 1                 | Liter, a unit of volume equal to 1 liters.                                                                                                                                                                          |
+|              | `cu`         | 1000              | Cubic meter, a unit of volume equal to 1000 liters.                                                                                                                                                                 |
+|              | `gal`        | 3.785411784       | Gallon, a unit of volume equal to 231 cubic inches.                                                                                                                                                                 |
+|              |              |                   |                                                                                                                                                                                                                     |
+| **Time**     | `ms`         | 0.001             | Millisecond, a unit of time equal to 1/1000 seconds.                                                                                                                                                                |
+|              | `micros`     | 0.000001          | Microsecond, a unit of time equal to 1/1000000 seconds.                                                                                                                                                             |
+|              | `ns`         | 0.000000001       | Nanosecond, a unit of time equal to 1/1000000000 seconds.                                                                                                                                                           |
+|              | `ps`         | 0.000000000001    | Picosecond, a unit of time equal to 1/1000000000000 seconds.                                                                                                                                                        |
+|              | `sec`        | 1                 | Second, a unit of time equal to 1 seconds.                                                                                                                                                                          |
+|              | `min`        | 60                | Minute, a unit of time equal to 60 seconds.                                                                                                                                                                         |
+|              | `hour`       | 3600              | Hour, a unit of time equal to 3600 seconds.                                                                                                                                                                         |
+|              | `day`        | 86400             | Day, a unit of time equal to 86400 seconds.                                                                                                                                                                         |
+|              | `week`       | 604800            | Week, a unit of time equal to 604800 seconds.                                                                                                                                                                       |
+|              | `month`      | 2629800           | Month, a unit of time equal to 2629800 seconds.                                                                                                                                                                     |
+|              | `year`       | 31557600          | Year, a unit of time equal to 31557600 seconds.                                                                                                                                                                     |
+|              | `decade`     | 315576000         | Decade, a unit of time equal to 315576000 seconds.                                                                                                                                                                  |
+|              | `century`    | 3155760000        | Century, a unit of time equal to 3155760000 seconds.                                                                                                                                                                |
+|              | `millennium` | 31557600000       | Millennium, a unit of time equal to 31557600000 seconds.                                                                                                                                                            |
+|              |              |                   |                                                                                                                                                                                                                     |
+| **Length**   | `mm`         | 0.001             | "Millimeter, a unit of length equal to 1/1000 meters."                                                                                                                                                              |
+|              | `cm`         | 0.01              | "Centimeter, a unit of length equal to 1/100 meters."                                                                                                                                                               |
+|              | `dm`         | 0.1               | "Decimeter, a unit of length equal to 1/10 meters."                                                                                                                                                                 |
+|              | `m`          | 1                 | "Meter, a unit of length equal to 1 meters."                                                                                                                                                                        |
+|              | `km`         | 1000              | "Kilometer, a unit of length equal to 1000 meters."                                                                                                                                                                 |
+|              | `in`         | 0.0254            | "Inch, a unit of length equal to 1/12 foot."                                                                                                                                                                        |
+|              | `ft`         | 0.3048            | "Foot, a unit of length equal to 1/3 yard."                                                                                                                                                                         |
+|              | `yd`         | 0.9144            | "Yard, a unit of length equal to 3 feet."                                                                                                                                                                           |
+|              | `mi`         | 1609.344          | "Mile, a unit of length equal to 1760 yards."                                                                                                                                                                       |
+|              | `nm`         | 1852              | "Nautical mile, a unit of length equal to 1852 meters."                                                                                                                                                             |
+|              | `ly`         | 9460730472580800  | "Light year, a unit of length equal to the distance that light travels in one year."                                                                                                                                |
+|              | `au`         | 149597870700      | "Astronomical unit, a unit of length equal to the mean distance between the Earth and the Sun."                                                                                                                     |
+|              |              |                   |                                                                                                                                                                                                                     |
+| **Area**     | `sqmm`       | 0.000001          | "Square millimeter, a unit of area equal to 1/1000000 square meters."                                                                                                                                               |
+|              | `sqcm`       | 0.0001            | "Square centimeter, a unit of area equal to 1/10000 square meters."                                                                                                                                                 |
+|              | `sqm`        | 1                 | "Square meter, a unit of area equal to 1 square meters."                                                                                                                                                            |
+|              | `sqkm`       | 1000000           | "Square kilometer, a unit of area equal to 1000000 square meters."                                                                                                                                                  |
+|              | `sqin`       | 0.00064516        | "Square inch, a unit of area equal to 1/144 square feet."                                                                                                                                                           |
+|              | `sqft`       | 0.09290304        | "Square foot, a unit of area equal to 1/9 square yards."                                                                                                                                                            |
+|              | `sqyd`       | 0.83612736        | "Square yard, a unit of area equal to 9 square feet."                                                                                                                                                               |
+|              | `sqmi`       | 2589988.110336    | "Square mile, a unit of area equal to 640 acres."                                                                                                                                                                   |
+|              | `acre`       | 4046.8564224      | "Acre, a unit of area equal to 43560 square feet."                                                                                                                                                                  |
+|              | `hectare`    | 10000             | "Hectare, a unit of area equal to 10000 square meters."                                                                                                                                                             |
+|              |              |                   |                                                                                                                                                                                                                     |
+| **Bytes**    | `b`          | 0.125             | "Bit, a unit of information equal to 1/8 bytes."                                                                                                                                                                    |
+|              | `Kb`         | 128               | "Kilobit, a unit of information equal to 1024 bits."                                                                                                                                                                |
+|              | `Mb`         | 131072            | "Megabit, a unit of information equal to 1024 kilobits."                                                                                                                                                            |
+|              | `Gb`         | 134217728         | "Gigabit, a unit of information equal to 1024 megabits."                                                                                                                                                            |
+|              | `Tb`         | 137438953472      | "Terabit, a unit of information equal to 1024 gigabits."                                                                                                                                                            |
+|              | `Pb`         | 140737488355328   | "Petabit, a unit of information equal to 1024 terabits."                                                                                                                                                            |
+|              | `B`          | 1                 | "Byte, a unit of information equal to 8 bits."                                                                                                                                                                      |
+|              | `KB`         | 1024              | "Kilobyte, a unit of information equal to 1024 bytes."                                                                                                                                                              |
+|              | `MB`         | 1048576           | "Megabyte, a unit of information equal to 1024 kilobytes."                                                                                                                                                          |
+|              | `GB`         | 1073741824        | "Gigabyte, a unit of information equal to 1024 megabytes."                                                                                                                                                          |
+|              | `TB`         | 1099511627776     | "Terabyte, a unit of information equal to 1024 gigabytes."                                                                                                                                                          |
+|              | `PB`         | 1125899906842624  | "Petabyte, a unit of information equal to 1024 terabytes."                                                                                                                                                          |

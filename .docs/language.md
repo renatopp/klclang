@@ -22,7 +22,25 @@ In the above example, sum will hold the value 300, which is the result of adding
 
 Variables must start with a letter and may contain letters, digits and `_` character.
 
-Comments are created using the `--` symbol. Anything after `--` on a line is ignored by the interpreter. This allows you to add notes or describe what your code is doing without affecting the program execution. Additionally, comments on the same line as a variable declaration are often used to provide documentation or help for that variable. This can be particularly useful for explaining the purpose or usage of a variable in a larger program.
+Comments are created using the `--` symbol. Anything after `--` on a line is ignored by the interpreter. This allows you to add notes or describe what your code is doing without affecting the program execution. Additionally, comments on the same line (or right above it, instead) as a variable declaration are often used to provide documentation or help for that variable. This can be particularly useful for explaining the purpose or usage of a variable in a larger program.
+
+```
+-- Hello, World!
+foo = 1
+
+-- This comment will be supressed
+bar = 2 -- by me!
+
+help(foo)
+help(bar)
+```
+
+Resulting in:
+
+```base
+Hello, World!
+by me!
+```
 
 ## Operations
 
@@ -49,12 +67,21 @@ KLC supports a variety of operators for performing calculations and comparisons.
 !1		   -- not
 0 and 1
 0 or 1
-0 xor 1
-0 nor 1
-0 nand 1
 ```
 
 Booleans are represented as numbers, where `0` is false and any non-zero value is true.
+
+All arithmetic operators can also be used in the assignment shortcuts:
+
+```
+a = 1
+a += 1
+a -= 1
+a /= 1
+a *= 1
+a ^= 1
+a %= 1
+```
 
 ### Metric System
 
@@ -90,16 +117,30 @@ result = floor(3.14) -- result will hold the value 3
 
 ### Custom Functions
 
-Haskell like? pattern matching
+Pattern matching allows us to define multiple versions of a function, each with different parameters. The correct version of the function is then chosen based on the parameters provided when the function is called.
+
+For example, the `factorial` function is defined with two versions:
 
 ```
 factorial(0) = 1
 factorial(x) = x * factorial(-1)
 ```
+The first version is for the base case of the factorial function, where the factorial of 0 is defined as 1. The second version calculates the factorial of a number x by multiplying x with the factorial of x-1.
+
+Another example. The `fib` function is also defined with three versions:
 
 ```
 fib(0) = 0
 fib(1) = 1
 fib(x) = fib(x-1) + fib(x-2)
 ```
+The first two versions define the base cases of the Fibonacci sequence, where the first and second terms are 0 and 1, respectively. The third version calculates the xth term of the Fibonacci sequence by adding the (x-1)th and (x-2)th terms.
 
+```
+f() = 1
+f(1) = 2
+f(2, x) = 3
+f(x) = 4
+
+assert( f() + f(1) + f(2, 3) + f(4) == 10 )
+```

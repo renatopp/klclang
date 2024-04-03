@@ -8,7 +8,7 @@ import (
 // MATH
 var (
 	FN_ABS = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -17,7 +17,7 @@ var (
 	}), "Abs returns the absolute value of a number.")
 
 	FN_ACOS = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -26,7 +26,7 @@ var (
 	}), "Acos returns the arccosine of a number.")
 
 	FN_ACOSH = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -35,7 +35,7 @@ var (
 	}), "Acosh returns the hyperbolic arccosine of a number.")
 
 	FN_ASIN = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -44,7 +44,7 @@ var (
 	}), "Asin returns the arcsine of a number.")
 
 	FN_ASINH = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -53,7 +53,7 @@ var (
 	}), "Asinh returns the hyperbolic arcsine of a number.")
 
 	FN_ATAN = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -62,7 +62,7 @@ var (
 	}), "Atan returns the arctangent of a number.")
 
 	FN_ATAN2 = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(2, args)); err != nil {
+		if err := withChecks(nArgs(args, 2)); err != nil {
 			return err
 		}
 
@@ -72,7 +72,7 @@ var (
 	}), "Atan2 returns the arctangent of y/x, using the signs of the two to determine the quadrant of the result.")
 
 	FN_ATANH = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -81,7 +81,7 @@ var (
 	}), "Atanh returns the hyperbolic arctangent of a number.")
 
 	FN_CBRT = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -90,7 +90,7 @@ var (
 	}), "Cbrt returns the cube root of a number.")
 
 	FN_CEIL = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -99,7 +99,7 @@ var (
 	}), "Ceil returns the smallest integer value greater than or equal to a number.")
 
 	FN_COPYSIGN = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(2, args)); err != nil {
+		if err := withChecks(nArgs(args, 2)); err != nil {
 			return err
 		}
 
@@ -109,7 +109,7 @@ var (
 	}), "Copysign returns the first argument with the sign of the second argument.")
 
 	FN_COS = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -118,7 +118,7 @@ var (
 	}), "Cos returns the cosine of a number.")
 
 	FN_COSH = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -127,7 +127,7 @@ var (
 	}), "Cosh returns the hyperbolic cosine of a number.")
 
 	FN_DIM = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(2, args)); err != nil {
+		if err := withChecks(nArgs(args, 2)); err != nil {
 			return err
 		}
 
@@ -137,7 +137,7 @@ var (
 	}), "Dim returns the maximum of x-y or 0.")
 
 	FN_ERF = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -146,7 +146,7 @@ var (
 	}), "Erf returns the error function of a number.")
 
 	FN_ERFC = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -155,7 +155,7 @@ var (
 	}), "Erfc returns the complementary error function of a number.")
 
 	FN_ERFCINV = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -164,7 +164,7 @@ var (
 	}), "Erfcinv returns the inverse of the complementary error function of a number.")
 
 	FN_ERFINV = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -173,7 +173,7 @@ var (
 	}), "Erfinv returns the inverse of the error function of a number.")
 
 	FN_EXP = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -182,7 +182,7 @@ var (
 	}), "Exp returns e**x, the base-e exponential of x.")
 
 	FN_EXP2 = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -191,7 +191,7 @@ var (
 	}), "Exp2 returns 2**x, the base-2 exponential of x.")
 
 	FN_EXPM1 = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -200,7 +200,7 @@ var (
 	}), "Expm1 returns e**x - 1, the base-e exponential of x minus 1.")
 
 	FN_FMA = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(3, args)); err != nil {
+		if err := withChecks(nArgs(args, 3)); err != nil {
 			return err
 		}
 
@@ -211,7 +211,7 @@ var (
 	}), "FMA returns x*y+z with no intermediate rounding.")
 
 	FN_FLOOR = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -220,7 +220,7 @@ var (
 	}), "Floor returns the largest integer value less than or equal to a number.")
 
 	FN_GAMMA = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -229,7 +229,7 @@ var (
 	}), "Gamma returns the gamma function of a number.")
 
 	FN_HYPOT = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(2, args)); err != nil {
+		if err := withChecks(nArgs(args, 2)); err != nil {
 			return err
 		}
 
@@ -239,7 +239,7 @@ var (
 	}), "Hypot returns the square root of x*x + y*y.")
 
 	FN_ILOGB = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -248,7 +248,7 @@ var (
 	}), "Ilogb returns the binary exponent of a number.")
 
 	FN_INF = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(0, args)); err != nil {
+		if err := withChecks(nArgs(args, 0)); err != nil {
 			return err
 		}
 
@@ -256,7 +256,7 @@ var (
 	}), "Inf returns positive infinity.")
 
 	FN_ISINF = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -268,7 +268,7 @@ var (
 	}), "IsInf reports whether a number is positive infinity.")
 
 	FN_J0 = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -277,7 +277,7 @@ var (
 	}), "J0 returns the Bessel function of the first kind of order 0.")
 
 	FN_J1 = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -286,7 +286,7 @@ var (
 	}), "J1 returns the Bessel function of the first kind of order 1.")
 
 	FN_JN = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(2, args)); err != nil {
+		if err := withChecks(nArgs(args, 2)); err != nil {
 			return err
 		}
 
@@ -296,7 +296,7 @@ var (
 	}), "Jn returns the Bessel function of the first kind of order n.")
 
 	FN_LDEXP = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(2, args)); err != nil {
+		if err := withChecks(nArgs(args, 2)); err != nil {
 			return err
 		}
 
@@ -306,7 +306,7 @@ var (
 	}), "Ldexp returns x * 2**exp.")
 
 	FN_LGAMMA = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -316,7 +316,7 @@ var (
 	}), "Lgamma returns the natural logarithm of the absolute value of the gamma function of a number.")
 
 	FN_LOG = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -325,7 +325,7 @@ var (
 	}), "Log returns the natural logarithm of a number.")
 
 	FN_LOG10 = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -334,7 +334,7 @@ var (
 	}), "Log10 returns the decimal logarithm of a number.")
 
 	FN_LOG1P = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -343,7 +343,7 @@ var (
 	}), "Log1p returns the natural logarithm of 1 plus a number.")
 
 	FN_LOG2 = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -352,7 +352,7 @@ var (
 	}), "Log2 returns the binary logarithm of a number.")
 
 	FN_MAX = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(2, args)); err != nil {
+		if err := withChecks(nArgs(args, 2)); err != nil {
 			return err
 		}
 
@@ -362,7 +362,7 @@ var (
 	}), "Max returns the larger of two numbers.")
 
 	FN_MIN = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(2, args)); err != nil {
+		if err := withChecks(nArgs(args, 2)); err != nil {
 			return err
 		}
 
@@ -372,7 +372,7 @@ var (
 	}), "Min returns the smaller of two numbers.")
 
 	FN_MOD = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(2, args)); err != nil {
+		if err := withChecks(nArgs(args, 2)); err != nil {
 			return err
 		}
 
@@ -382,7 +382,7 @@ var (
 	}), "Mod returns the floating-point remainder of x/y.")
 
 	FN_INT = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -392,7 +392,7 @@ var (
 	}), "Int returns the integer parts of a number.")
 
 	FN_FRAC = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -402,7 +402,7 @@ var (
 	}), "Frac returns the fractional parts of a number.")
 
 	FN_NEXTAFTER = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(2, args)); err != nil {
+		if err := withChecks(nArgs(args, 2)); err != nil {
 			return err
 		}
 
@@ -412,7 +412,7 @@ var (
 	}), "Nextafter returns the next representable float64 value after x in the direction of y.")
 
 	FN_POW = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(2, args)); err != nil {
+		if err := withChecks(nArgs(args, 2)); err != nil {
 			return err
 		}
 
@@ -422,7 +422,7 @@ var (
 	}), "Pow returns x**y, the base-x exponential of y.")
 
 	FN_POW10 = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -431,7 +431,7 @@ var (
 	}), "Pow10 returns 10**n, the base-10 exponential of n.")
 
 	FN_REMAINDER = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(2, args)); err != nil {
+		if err := withChecks(nArgs(args, 2)); err != nil {
 			return err
 		}
 
@@ -441,7 +441,7 @@ var (
 	}), "Remainder returns the IEEE 754 floating-point remainder of x/y.")
 
 	FN_ROUND = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -450,7 +450,7 @@ var (
 	}), "Round returns the nearest integer, rounding half away from zero.")
 
 	FN_ROUNDTOEVEN = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -459,7 +459,7 @@ var (
 	}), "RoundToEven returns the nearest integer, rounding ties to even.")
 
 	FN_SIGN = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -474,7 +474,7 @@ var (
 	}), "Sign returns the sign of a number.")
 
 	FN_SIN = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -483,7 +483,7 @@ var (
 	}), "Sin returns the sine of a number.")
 
 	FN_SINH = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -492,7 +492,7 @@ var (
 	}), "Sinh returns the hyperbolic sine of a number.")
 
 	FN_SQRT = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -501,7 +501,7 @@ var (
 	}), "Sqrt returns the square root of a number.")
 
 	FN_TAN = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -510,7 +510,7 @@ var (
 	}), "Tan returns the tangent of a number.")
 
 	FN_TANH = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -519,7 +519,7 @@ var (
 	}), "Tanh returns the hyperbolic tangent of a number.")
 
 	FN_TRUNC = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -528,7 +528,7 @@ var (
 	}), "Trunc returns the integer value of a number.")
 
 	FN_Y0 = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -537,7 +537,7 @@ var (
 	}), "Y0 returns the Bessel function of the second kind of order 0.")
 
 	FN_Y1 = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -546,7 +546,7 @@ var (
 	}), "Y1 returns the Bessel function of the second kind of order 1.")
 
 	FN_YN = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(2, args)); err != nil {
+		if err := withChecks(nArgs(args, 2)); err != nil {
 			return err
 		}
 
@@ -559,7 +559,7 @@ var (
 // RANDOM
 var (
 	FN_RAND = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(0, args)); err != nil {
+		if err := withChecks(nArgs(args, 0)); err != nil {
 			return err
 		}
 
@@ -567,7 +567,7 @@ var (
 	}), "Rand returns a random number in the range [0.0, 1.0).")
 
 	FN_RANDEXP = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(1, args)); err != nil {
+		if err := withChecks(nArgs(args, 1)); err != nil {
 			return err
 		}
 
@@ -576,7 +576,7 @@ var (
 	}), "RandExp returns a random number drawn from an exponential distribution with rate lambda.")
 
 	FN_RANDINT = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(2, args)); err != nil {
+		if err := withChecks(nArgs(args, 2)); err != nil {
 			return err
 		}
 
@@ -586,7 +586,7 @@ var (
 	}), "RandInt returns a random integer in the range [min, max).")
 
 	FN_RANDINTN = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(0, args)); err != nil {
+		if err := withChecks(nArgs(args, 0)); err != nil {
 			return err
 		}
 
@@ -595,12 +595,36 @@ var (
 	}), "RandIntn returns a random integer in the range [0, max).")
 
 	FN_RANDNORM = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
-		if err := withChecks(nArgs(0, args)); err != nil {
+		if err := withChecks(nArgs(args, 0)); err != nil {
 			return err
 		}
 
 		return NewNumber(rand.NormFloat64())
 	}), "RandNorm returns a random number drawn from a normal distribution with mean 0 and standard deviation 1.")
+)
+
+// OTHER
+var (
+	FN_ASSERT = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
+		if err := withChecks(nArgs(args, 1)); err != nil {
+			return err
+		}
+
+		if args[0].Number() != 0 {
+			return NewNumber(1)
+		}
+
+		return NewError("assertion failed")
+	}), "Assert returns true if the argument is true, otherwise it returns an error message.")
+
+	FN_HELP = withDocs(NewBuiltinFunction(func(env *Scope, args ...Object) Object {
+		if err := withChecks(nArgs(args, 1)); err != nil {
+			return err
+		}
+
+		println(args[0].Docs())
+		return NewNumber(0)
+	}), "Help prints the documentation of a function.")
 )
 
 func registerFunctions(scope *Scope) {
@@ -668,9 +692,12 @@ func registerFunctions(scope *Scope) {
 	scope.Set("randInt", FN_RANDINT)
 	scope.Set("randIntn", FN_RANDINTN)
 	scope.Set("randNorm", FN_RANDNORM)
+
+	scope.Set("assert", FN_ASSERT)
+	scope.Set("help", FN_HELP)
 }
 
-func nArgs(n int, args []Object) Object {
+func nArgs(args []Object, n int) Object {
 	if len(args) != n {
 		return NewError("expected %d arguments, got %d", n, len(args))
 	}
