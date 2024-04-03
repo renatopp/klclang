@@ -7,8 +7,23 @@ import (
 	"github.com/renatopp/langtools/asts"
 )
 
+type RuntimeError struct {
+	node asts.Node
+	msg  string
+}
+
+func (e RuntimeError) Error() string {
+	return e.msg
+}
+
+func (e RuntimeError) At() (int, int) {
+	token := e.node.GetToken()
+	return token.Line, token.Column
+}
+
 type Runtime struct {
 	scope *Scope
+	// errors []error
 }
 
 func NewRuntime() *Runtime {
@@ -22,8 +37,21 @@ func NewRuntime() *Runtime {
 }
 
 func (r *Runtime) Eval(node asts.Node) Object {
-	return r.eval(r.scope, node)
+	obj := r.eval(r.scope, node)
+
+	// if len(r.errors) > 0 {
+	// 	return nil, r.errors[0]
+	// }
+
+	return obj
 }
+
+// func (r *Runtime) registerError(msg string, node asts.Node) {
+// 	r.errors = append(r.errors, RuntimeError{
+// 		msg:  msg,
+// 		node: node,
+// 	})
+// }
 
 func (r *Runtime) eval(env *Scope, node asts.Node) Object {
 	// println("evaluating:", node.String(), reflect.TypeOf(node).String())
@@ -45,8 +73,8 @@ func (r *Runtime) eval(env *Scope, node asts.Node) Object {
 	case ast.BinaryOperator:
 		return r.evalBinaryOperator(env, node)
 
-	// case ast.Assignment:
-	// 	return r.evalAssignment(env, node)
+	case ast.Assignment:
+		return r.evalAssignment(env, node)
 
 	// case ast.FunctionCall:
 	// 	return r.evalFunctionCall(env, node)
@@ -76,6 +104,7 @@ func (r *Runtime) evalNumber(_ *Scope, node ast.Number) Object {
 func (r *Runtime) evalIdentifier(env *Scope, node ast.Identifier) Object {
 	value := env.Get(node.Name)
 	if value == nil {
+
 		// TODO: Panic
 	}
 	return value
@@ -120,4 +149,10 @@ func (r *Runtime) evalBinaryOperator(env *Scope, node ast.BinaryOperator) Object
 	}
 
 	return NewNumber(result)
+}
+
+func (r *Runtime) evalAssignment(env *Scope, node ast.Assignment) Object {
+	value := r.eval(env, node.Expression)
+	env.Set(node.Identifier.Name, value)
+	return value
 }

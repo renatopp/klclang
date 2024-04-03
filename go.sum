@@ -24,6 +24,8 @@ github.com/renatopp/langtools v0.1.0 h1:0WVlnqgXDeUC+ewNRWlNuNcdt9mFQEXd8ZZNUPtZ
 github.com/renatopp/langtools v0.1.0/go.mod h1:GEgnjZGKhBCpAIzL9VdtNQCRrO0Uk3YZ+Fk/bx6am7U=
 github.com/renatopp/langtools v0.1.1 h1:3K0ZXLTdlDuVxVqXC/h204H2tzNNnjK6MnXCBjXv7tQ=
 github.com/renatopp/langtools v0.1.1/go.mod h1:GEgnjZGKhBCpAIzL9VdtNQCRrO0Uk3YZ+Fk/bx6am7U=
+github.com/renatopp/langtools v0.1.2 h1:wvn7HlsQ5B0D2RwBHxd9NWOoJ9YmHKekShNRRR50nrQ=
+github.com/renatopp/langtools v0.1.2/go.mod h1:GEgnjZGKhBCpAIzL9VdtNQCRrO0Uk3YZ+Fk/bx6am7U=
 github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=
 github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
 golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=

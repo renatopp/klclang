@@ -77,7 +77,31 @@ func (k *KlcParser) precedence(t tokens.Token) int {
 }
 
 func (k *KlcParser) Parse() asts.Node {
-	return k.ParseExpression(0)
+	first := k.Lexer.PeekToken()
+	statements := []asts.Node{}
+
+	cur := k.Lexer.PeekToken()
+	for !cur.IsType(TEof) {
+		switch {
+		case cur.IsType(TEoe):
+			k.Lexer.EatToken()
+
+		default:
+			node := k.ParseExpression(0)
+			if node == nil {
+				k.RegisterError("invalid expression")
+				return nil
+			}
+
+			statements = append(statements, node)
+		}
+		cur = k.Lexer.PeekToken()
+	}
+
+	return ast.Block{
+		Token:      first,
+		Statements: statements,
+	}
 }
 
 func (k *KlcParser) prefixNumber() asts.Node {
@@ -137,16 +161,16 @@ func (k *KlcParser) infixAssignment(left asts.Node) asts.Node {
 	cur := k.Lexer.EatToken()
 	right := k.ParseExpression(k.PrecedenceFn(cur))
 
-	if isNodeAn[ast.Identifier](left) || isNodeAn[ast.FunctionCall](left) {
+	if isNodeAn[ast.Identifier](left) {
 		return ast.Assignment{
 			Token:      cur,
 			Operator:   cur.Literal,
-			Identifier: left,
+			Identifier: left.(ast.Identifier),
 			Expression: right,
 		}
 	}
 
-	k.RegisterErrorWithToken("expected identifier or function definition at left", cur)
+	k.RegisterErrorWithToken("expected identifier or function definition at left", left.GetToken())
 	return nil
 }
 

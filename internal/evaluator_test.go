@@ -9,8 +9,9 @@ import (
 
 func run(t *testing.T, code string, expected string) {
 	t.Helper()
-	obj := internal.Run([]byte(code))
+	obj, err := internal.Run([]byte(code))
 	assert.NotNil(t, obj)
+	assert.Nil(t, err)
 	if obj != nil {
 		assert.Equal(t, expected, obj.String())
 	}

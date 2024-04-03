@@ -45,8 +45,10 @@ func Debug(code []byte) {
 		parser := internal.NewParser(lexer)
 
 		node := parser.Parse()
-		if node == nil {
-			println("- node is nil")
+		if parser.HasErrors() {
+			println("ERRORS:")
+			println(internal.ConvertParserErrors(code, parser.Errors()).Error())
+			println()
 			os.Exit(0)
 		}
 

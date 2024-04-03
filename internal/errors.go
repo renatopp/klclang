@@ -5,14 +5,38 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/renatopp/langtools"
 	"github.com/renatopp/langtools/lexers"
+	"github.com/renatopp/langtools/parsers"
 )
 
 func ConvertLexerErrors(input []byte, err []lexers.LexerError) error {
+	var errs []langtools.Error = make([]langtools.Error, len(err))
+	for i, e := range err {
+		errs[i] = e
+	}
+
+	return convertError("lexer", input, errs)
+}
+
+func ConvertParserErrors(input []byte, err []parsers.ParserError) error {
+	var errs []langtools.Error = make([]langtools.Error, len(err))
+	for i, e := range err {
+		errs[i] = e
+	}
+
+	return convertError("parser", input, errs)
+}
+
+func ConvertRuntimeErrors(input []byte, err []langtools.Error) error {
+	return convertError("runtime", input, err)
+}
+
+func convertError(tp string, input []byte, err []langtools.Error) error {
 	result := ""
 	for i, e := range err {
 		if i == 0 {
-			result += convertLexerMainError(input, e)
+			result += convertMainError(tp, input, e)
 
 		} else {
 			if i == 1 {
@@ -20,14 +44,14 @@ func ConvertLexerErrors(input []byte, err []lexers.LexerError) error {
 				result += "Other errors:\n"
 			}
 
-			result += convertLexerSecondaryError(input, e)
+			result += convertSecondaryError(input, e)
 		}
 	}
 
 	return errors.New(result)
 }
 
-func convertLexerMainError(input []byte, err lexers.LexerError) string {
+func convertMainError(tp string, input []byte, err langtools.Error) string {
 	line, column := err.At()
 
 	fromLine := max(0, line-2)
@@ -46,18 +70,15 @@ func convertLexerMainError(input []byte, err lexers.LexerError) string {
 	result += fmt.Sprintf("%s| %s\n", padLeft("", 4), padLeft("", column-1)+"^")
 
 	// Error Message
-	result += fmt.Sprintf("[syntax error] %s\n", err.Msg)
+	result += fmt.Sprintf("[%s error] %s\n", tp, err.Error())
 
 	return result
 }
 
-func convertLexerSecondaryError(input []byte, err lexers.LexerError) string {
+func convertSecondaryError(_ []byte, err langtools.Error) string {
 	line, column := err.At()
-	return fmt.Sprintf("line %4d, column %4d | %s", line, column, err.Msg)
+	return fmt.Sprintf("line %4d, column %4d | %s", line, column, err.Error())
 }
-
-// func convertParserErrors(input []byte, err []error) error     { return nil }
-// func convertMainRuntimeError(input []byte, err []error) error { return nil }
 
 func getLines(input []byte, from, to int) []string {
 	lines := strings.Split(string(input), "\n")

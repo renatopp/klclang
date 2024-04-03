@@ -10,7 +10,7 @@ import (
 type Assignment struct {
 	Token      tokens.Token
 	Operator   string
-	Identifier asts.Node
+	Identifier Identifier
 	Expression asts.Node
 }
 
