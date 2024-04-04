@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   build:
@@ -24,6 +25,7 @@ jobs:
         run: go test ./...
 
       - run: |
+          echo "Publishing version $(cat VERSION)"
           git config --global user.email "pipeline@r2p.dev"
           git config --global user.name "Pipeline"
           git tag -a -m "Release $(cat VERSION)" $(cat VERSION)
