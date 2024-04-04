@@ -31,8 +31,12 @@
 - [x] Final language documentation
 - [ ] Readme
 - [ ] How to install documentation (curl linux/window)
-- [ ] Static page?
-- [ ] Online interpreter in static page?
+- [ ] Static page generator
+  - [ ] Setup
+  - [ ] Interpreter
+  - [ ] Language description
+  - [ ] Features
+  - [ ] Links
 
 ## Tooling
 
