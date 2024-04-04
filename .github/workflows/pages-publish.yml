@@ -24,8 +24,8 @@ jobs:
       - name: Build WASM
         run: GOOS=js GOARCH=wasm go build -o .page/js/klc.wasm cmd/wasm/wasm.go
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
+      # - name: Setup Pages
+      #   uses: actions/configure-pages@v5
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
