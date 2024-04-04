@@ -2,8 +2,14 @@ name: Publish KLC Binaries
 
 on:
   push:
-    tags:
-      - "*"
+    branches:
+      - main
+    paths:
+      - VERSION
+
+permissions:
+  contents: write
+  id-token: write
 
 jobs:
   build:
@@ -17,6 +23,15 @@ jobs:
 
       - name: Test
         run: go test ./...
+
+      - run: |
+          echo "Publishing version $(cat VERSION)"
+          git config --global user.email "pipeline@r2p.dev"
+          git config --global user.name "Pipeline"
+          git tag -a -m "Release $(cat VERSION)" $(cat VERSION)
+          git push origin $(cat VERSION)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - uses: goreleaser/goreleaser-action@v5
         with:
