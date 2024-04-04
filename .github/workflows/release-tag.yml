@@ -3,7 +3,9 @@ name: Tag KLC Binaries
 on:
   push:
     branches:
-      - main
+      - publish
+    # paths:
+    #   - VERSION
 
 permissions:
   contents: write
