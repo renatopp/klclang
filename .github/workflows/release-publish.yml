@@ -3,9 +3,9 @@ name: Publish KLC Binaries
 on:
   push:
     branches:
-      - publish
-    # paths:
-    #   - VERSION
+      - main
+    paths:
+      - VERSION
 
 permissions:
   contents: write
