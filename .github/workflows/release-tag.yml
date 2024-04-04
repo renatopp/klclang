@@ -21,6 +21,8 @@ jobs:
         run: go test ./...
 
       - run: |
+          git config --global user.email "pipeline@r2p.dev"
+          git config --global user.name "Pipeline"
           git tag -a -m "Release $(cat VERSION)" $(cat VERSION)
           git push origin $(cat VERSION)
         env:
