@@ -139,13 +139,13 @@ func (r *Runtime) evalUnaryOperator(env *Scope, node *ast.UnaryOperator) Object 
 
 func (r *Runtime) evalBinaryOperator(env *Scope, node *ast.BinaryOperator) Object {
 	switch {
-	case node.Token.IsOneOfLiterals("+", "-", "*", "/", "%", "^"):
+	case node.Is("+", "-", "*", "/", "%", "^"):
 		return r.evalArithmeticOperator(env, node)
 
-	case node.Token.IsOneOfLiterals("==", "!=", ">", "<", ">=", "<="):
+	case node.Is("==", "!=", ">", "<", ">=", "<="):
 		return r.evalComparisonOperator(env, node)
 
-	case node.Token.IsOneOfLiterals("and", "or"):
+	case node.Is("and", "or"):
 		return r.evalLogicalOperator(env, node)
 
 	default:
@@ -241,7 +241,7 @@ func (r *Runtime) evalArithmeticOperator(env *Scope, node *ast.BinaryOperator) O
 
 	result, ok := evalArithmetic(node.Operator, left, right)
 	if !ok {
-		return r.RegisterError("unknown binary operator", node)
+		return r.RegisterError("unknown arithmetic operator", node)
 	}
 
 	return NewNumber(result)
@@ -319,12 +319,12 @@ func (r *Runtime) evalFunctionCall(env *Scope, node *ast.FunctionCall) Object {
 
 			accepted := true
 			for i, arg := range match.Params {
-				_, ok := arg.(ast.Identifier)
+				_, ok := arg.(*ast.Identifier)
 				if ok {
 					continue
 				}
 
-				n, ok := arg.(ast.Number)
+				n, ok := arg.(*ast.Number)
 				if ok {
 					if n.Value == args[i].Number() {
 						continue
@@ -347,7 +347,7 @@ func (r *Runtime) evalFunctionCall(env *Scope, node *ast.FunctionCall) Object {
 		if matchIdx >= 0 {
 			for i, arg := range fun.Matches[matchIdx].Params {
 				a := args[i]
-				identifier, ok := arg.(ast.Identifier)
+				identifier, ok := arg.(*ast.Identifier)
 				if ok {
 					scope.Set(identifier.Name, a)
 				}
@@ -409,7 +409,7 @@ func evalArithmetic(op string, left, right float64) (result float64, ok bool) {
 		result = left - right
 	case "*":
 		result = left * right
-	case "/":
+	case "/", "to":
 		if right == 0 {
 			return 0, true
 		}

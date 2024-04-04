@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>KLC Lang</title>
+
+	<link rel="stylesheet" href="css/normalize.css">
+	<link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+	<main>
+		<h1 class="title">KLC LANG</h1>
+		<h2 class="subtitle">A toy programming language for daily math.</h2>
+
+		<p>KLC (pronounced `calc`) is a simple toy programming language for basic math, created for studying programming
+			language design and development.</p>
+
+		<div id="terminal" class="runtime"> </div>
+
+		<h2>Why?</h2>
+
+		<p>KLC was created primarily for fun and learning design and development of programming languages, and secondarily
+			for daily math - calculus that requires conversions and a bit more than what calculator apps usually provides.</p>
+
+		<h2>Language</h2>
+
+		<p>In KLC there are only numbers and functions. You can perform all common operations upon numbers:</p>
+
+		<pre>normal(x, mean, std) = 1/(std*sqrt(2pi)) * exp(-.5((x-mean)/std)^2)
+a = normal(0, 0, 1)</pre>
+
+
+		<h3>Operators</h3>
+
+		<p>KLC supports a variety of operators for performing calculations and comparisons. Booleans are represented as
+			numbers, where
+			<code>0</code> is false and any non-zero value is true.
+		</p>
+
+		<pre><span class="comment">-- Arithmetic Operators:</span>
+5+10 <span class="comment">-- add</span>
+5-10 <span class="comment">-- sub</span>
+5*10 <span class="comment">-- mul</span>
+5/10 <span class="comment">-- div</span>
+5^10 <span class="comment">-- pow</span>
+5%10 <span class="comment">-- mod</span>
+
+<span class="comment">-- Relational Operators:</span>
+5 == 10 <span class="comment">-- eq</span>
+5 != 10 <span class="comment">-- neq</span>
+5 < 10  <span class="comment">-- lt</span>
+5 <= 10 <span class="comment">-- lte</span>
+5 > 10  <span class="comment">-- gt</span>
+5 >= 10 <span class="comment">-- gte</span>
+
+<span class="comment">-- Logical Operators:</span>
+!1 <span class="comment">-- not</span>
+0 and 1
+0 or 1</pre>
+
+		<p>All arithmetic operators can also be used in the assignments, such as <code>a += 1</code>.</p>
+
+
+		<h3>Metrics System</h3>
+
+		<p>KLC supports the metric system, allowing you to write expressions using metric units. This feature makes it
+			easier to perform calculations involving units of measurement. For example:</p>
+
+		<pre>1m to cm <span class="comment">-- 100</span>
+36deg to rad <span class="comment">-- 2062.648062</span>
+10hour to sec <span class="comment">-- 36000</span>
+1831936KB to MB <span class="comment">-- 1789</span>
+1831936KB to GB <span class="comment">-- 1.747070</span></pre>
+
+		<p>Supported units:</p>
+
+		<ul>
+			<li><strong>Angle:</strong> rad, deg, grad, arcmin, arcsec.</li>
+			<li><strong>Weight:</strong> mg, cg, dg, g, kg, ton, oz, lb.</li>
+			<li><strong>Volume:</strong> ml, l, cu, gal.</li>
+			<li><strong>Time:</strong> ms, micros, ns, ps, sec, min, hour, day, week, month, year, decade, century,
+				millennium.
+			</li>
+			<li><strong>Length:</strong> mm, cm, dm, m, km, in, ft, yd, mi, nm, ly, au.</li>
+			<li><strong>Area:</strong> sqmm, sqcm, sqm, sqkm, sqin, sqft, sqyd, sqmi, acre, hectare.</li>
+			<li><strong>Bytes:</strong> Kb, Mb, Gb, Tb, Pb, B, KB, MB, GB, TB, PB.</li>
+		</ul>
+
+		<h3>Functions</h3>
+
+		<p>Functions uses pattern matching to select which version will be used, depending on the arguments:</p>
+
+		<pre><span class="comment">-- Factorial</span>
+factorial(0) = 1
+factorial(x) = x * factorial(-1)
+
+<span class="comment">-- Fibonacci</span>
+fib(0) = 0
+fib(1) = 1
+fib(x) = fib(x-1) + fib(x-2)
+
+factorial(5) <span class="comment">-- 120</span>
+fib(5) <span class="comment">-- 5</span></pre>
+
+		<h2>More Information</h2>
+
+		<p>For more information, including how to install, how to use in terminal, and source code, please visit the github
+			page:</p>
+
+		<p><a href="https://github.com/renatopp/klclang">https://github.com/renatopp/klclang</a></p>
+	</main>
+
+	<footer>
+		<p>Created by <a href="https://r2p.dev">Renato Pereira</a> | 2024</p>
+	</footer>
+</body>
+
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"
+	integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/2.39.3/js/jquery.terminal.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/2.39.3/css/jquery.terminal.min.css"
+	rel="stylesheet" />
+
+<script src="js/wasm.js"></script>
+<script src="js/script.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/terminal-prism/css/prism-dark.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/jquery.terminal/js/prism.js"></script>
+<script src="https://unpkg.com/prismjs@1.29.0/components/prism-haskell.min.js"></script>
+
+
+</html>

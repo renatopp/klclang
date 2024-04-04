@@ -63,7 +63,7 @@ KLC supports a variety of operators for performing calculations and comparisons.
 5 > 10  -- gt
 5 >= 10 -- gte
 
--- Logical Operators
+-- Logical Operators:
 !1		   -- not
 0 and 1
 0 or 1

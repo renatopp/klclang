@@ -2,6 +2,7 @@ package ast
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/renatopp/langtools/asts"
 	"github.com/renatopp/langtools/tokens"
@@ -12,6 +13,10 @@ type BinaryOperator struct {
 	Operator string
 	Left     asts.Node
 	Right    asts.Node
+}
+
+func (b BinaryOperator) Is(op ...string) bool {
+	return slices.Contains(op, b.Operator)
 }
 
 func (b BinaryOperator) GetToken() tokens.Token {

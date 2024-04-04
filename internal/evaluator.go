@@ -9,6 +9,11 @@ func NewEvaluator() *runtime.Runtime {
 }
 
 func Run(code []byte) (runtime.Object, error) {
+	runtime := NewEvaluator()
+	return RunInRuntime(code, runtime)
+}
+
+func RunInRuntime(code []byte, runtime *runtime.Runtime) (runtime.Object, error) {
 	lexer := NewLexer(code)
 	if lexer.HasErrors() {
 		return nil, ConvertLexerErrors(code, lexer.Errors())
@@ -20,11 +25,11 @@ func Run(code []byte) (runtime.Object, error) {
 		return nil, ConvertParserErrors(code, parser.Errors())
 	}
 
-	runtime := NewEvaluator()
 	obj := runtime.Eval(node)
-
 	if runtime.HasErrors() {
-		return nil, ConvertRuntimeErrors(code, runtime.Errors())
+		errors := runtime.Errors()
+		runtime.ClearErrors()
+		return nil, ConvertRuntimeErrors(code, errors)
 	}
 	return obj, nil
 }

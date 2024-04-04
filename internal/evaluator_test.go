@@ -69,6 +69,9 @@ func TestOperator(t *testing.T) {
 	run(t, "0 or 1", "1")
 	run(t, "1 or 0", "1")
 	run(t, "1 or 1", "1")
+
+	run(t, "2km to m", "2000")
+	run(t, "2000m to km", "2")
 }
 
 func TestFunctions(t *testing.T) {
