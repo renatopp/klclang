@@ -48,11 +48,9 @@ ease_in_back(x) =
 # CONTROL
 ease_in_elastic(x) = 
   c4 = 2*pi/3
-  {
-    x == 0    ? 0
-    x == 1    ? 1
-    otherwise ? -2^(10*x - 10) * sin((x*10 - 10.75) * c4)
-  }
+  if x == 0 then 0 else
+  if x == 1 then 1 else
+  -2^(10*x - 10) * sin((x*10 - 10.75) * c4)
 
 # OPERATORS
 5+10    # add

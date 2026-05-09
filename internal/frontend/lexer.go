@@ -5,15 +5,17 @@ import (
 	"strings"
 
 	"github.com/renatopp/klclang/internal/core"
+	"github.com/renatopp/x/dsx"
+	"github.com/renatopp/x/runex"
 	"github.com/renatopp/x/strx"
 )
 
-func Lex(module *core.Module, content []byte) ([]*core.Token, error) {
+func Lex(script *core.Script, content []byte) ([]*core.Token, error) {
 	l := &lexer{
-		module:         module,
+		script:         script,
 		scanner:        NewScanner([]rune(string(content)), rune(0)),
-		indentStack:    ds.NewStack[*identinfo](),
-		syntheticQueue: ds.NewQueue[*core.Token](),
+		indentStack:    dsx.NewStack[*indentInfo](),
+		syntheticQueue: dsx.NewQueue[*core.Token](),
 		result:         make([]*core.Token, 0),
 		previousRune:   0,
 		currentLine:    1,
@@ -24,16 +26,16 @@ func Lex(module *core.Module, content []byte) ([]*core.Token, error) {
 	return core.WithRecover(l.lex)
 }
 
-type identinfo struct {
+type indentInfo struct {
 	indent int  // indent level
-	ommit  bool // if the indent was caused by a {, [, ( or comma, the indent can be ommited
+	omit   bool // if the indent was caused by a {, [, ( or comma, the indent can be omitted
 }
 
 type lexer struct {
-	module         *core.Module
+	script         *core.Script
 	scanner        *Scanner[rune]
-	indentStack    ds.Stack[*identinfo]
-	syntheticQueue ds.Queue[*core.Token]
+	indentStack    *dsx.Stack[*indentInfo]
+	syntheticQueue *dsx.Queue[*core.Token]
 	result         []*core.Token
 	currentLine    int
 	currentColumn  int
@@ -65,53 +67,39 @@ func (l *lexer) next() *core.Token {
 		c2 := l.scanner.PeekAt(2)
 
 		switch {
-		// ------------------------------------------------------------------------
-		// EOF | DEDENT
-		// ------------------------------------------------------------------------
-		// If the end of file is reached, we need to close all the open indents by
-		// generating the corresponding } tokens.
-		case runes.IsEof(c0):
+
+		case runex.IsEof(c0):
+			// If the end of file is reached, we need to close all the open indents by
+			// generating the corresponding } tokens.
 			for l.indentStack.Size() > 0 {
 				popped := l.indentStack.Pop()
-				if !popped.ommit {
-					return l.tok(core.TokenRightBrace, "}")
+				if !popped.omit {
+					return l.tok(core.TokenDedent, "")
 				}
 			}
 			return l.tok(core.TokenEof, "")
 
-		// ------------------------------------------------------------------------
-		// SPACES
-		// ------------------------------------------------------------------------
-		// Spaces are not relevant for the parser, but it may be relevant for error
-		// reporting, code formatting tools or analysis.
-		case runes.IsSpace(c0):
+		case runex.IsSpace(c0):
 			l.eatSpaces()
-			// return l.tok(core.TokenSpace, l.eatSpaces())
 
-		// ------------------------------------------------------------------------
-		// SEPARATORS
-		// ------------------------------------------------------------------------
-		// Handle newlines and semicolons as instruction separators. If they are
-		// followed by an increase or decrease in the indentation level, we need
-		// to generate the corresponding { or } tokens for brace illisions.
-		case runes.IsOneOf(c0, '\n', ';'):
+		case runex.IsOneOf(c0, '\n', ';'):
 			sep, indent := l.eatSeparators()
 
 			// indent increase
-			prevIndent := l.indentStack.TopOr(&identinfo{})
+			prevIndent := l.indentStack.FirstOr(&indentInfo{})
 			if indent > prevIndent.indent {
-				curIndent := &identinfo{
+				curIndent := &indentInfo{
 					indent: indent,
-					ommit: l.last().IsKind( // ommit if caused by {, [, ( or comma
-						core.TokenLeftBrace,
-						core.TokenLeftBracket,
+					omit: l.last().IsKind( // omit if caused by {, [, ( or comma
+						// core.TokenLeftBrace,
+						// core.TokenLeftBracket,
 						core.TokenLeftParen,
 						core.TokenComma,
 					),
 				}
 				l.indentStack.Push(curIndent)
-				if !curIndent.ommit {
-					return l.tok(core.TokenLeftBrace, "{")
+				if !curIndent.omit {
+					return l.tok(core.TokenIndent, "")
 				} else {
 					return l.tok(core.TokenSeparator, sep)
 				}
@@ -120,10 +108,10 @@ func (l *lexer) next() *core.Token {
 			// indent decrease
 			for indent < prevIndent.indent {
 				popped := l.indentStack.Pop()
-				if !popped.ommit {
-					l.syntheticQueue.Push(l.tok(core.TokenRightBrace, "}"))
+				if !popped.omit {
+					l.syntheticQueue.Push(l.tok(core.TokenDedent, ""))
 				}
-				prevIndent = l.indentStack.TopOr(&identinfo{})
+				prevIndent = l.indentStack.FirstOr(&indentInfo{})
 			}
 
 			// check valid indent
@@ -140,34 +128,20 @@ func (l *lexer) next() *core.Token {
 			// return separator
 			return l.tok(core.TokenSeparator, sep)
 
-		// ------------------------------------------------------------------------
-		// COMMENT
-		// ------------------------------------------------------------------------
-		// Comments start with # and go until the end of the line. Multiple lines
-		// starting with # without empty lines between them are considered as part
-		// of the same comment.
-		case runes.IsOneOf(c0, '#'):
+		case runex.IsOneOf(c0, '#'):
 			comment := l.tok(core.TokenComment, l.eatComment())
 			// Merge consecutive comments into a single token
-			for runes.IsOneOf(l.scanner.Peek(), '#') {
+			for runex.IsOneOf(l.scanner.Peek(), '#') {
 				other := l.tok(core.TokenComment, l.eatComment())
 				comment.Absorb(other)
 			}
 			return comment
 
-		// ------------------------------------------------------------------------
-		// IMPORT
-		// ------------------------------------------------------------------------
 		case l.last().IsKind(core.TokenImport):
 			literal := l.eatComment() // import until the end of the line
 			return l.tok(core.TokenString, strings.TrimSpace(literal))
 
-		// ------------------------------------------------------------------------
-		// IDENTIFIERS and KEYWORDS
-		// ------------------------------------------------------------------------
-		// Identifiers and keywords start with a letter or an underscore, and can
-		// be followed by letters, digits or underscores.
-		case runes.IsAlpha(c0) || runes.IsOneOf(c0, '_'):
+		case runex.IsAlpha(c0) || runex.IsOneOf(c0, '_'):
 			literal := l.eatIdentifier()
 
 			// Keywords
@@ -175,75 +149,41 @@ func (l *lexer) next() *core.Token {
 				return l.tok(kind, literal)
 			}
 
-			// Type identifiers
-			if core.IsTypeName(literal) {
-				return l.tok(core.TokenTypeIdent, literal)
-			}
-
 			// Value identifiers
-			return l.tok(core.TokenValueIdent, literal)
+			return l.tok(core.TokenIdentifier, literal)
 
-		// ------------------------------------------------------------------------
-		// NUMBERS
-		// ------------------------------------------------------------------------
-		// Numbers are tricky because they can be in different bases and formats.
-		// We need to handle integers, floats, hex, octal and binary numbers.
-		// The following cases are handled:
-		//
-		// - Hexadecimal: 0xFF or 0XFF
-		// - Octal: 0o77 or 0O77
-		// - Binary: 0b11 or 0B11
-		// - Float: 123.45, .45, 123., 123e10, 123.45e10, 123e+10, 123e-10
-		// - Integer: 12345
-		case runes.IsDigit(c0) || c0 == '.' && runes.IsDigit(c1):
-			// Number as value identifiers such as tuple accesss
-			if c0 == '.' && l.last().IsKind(
-				core.TokenValueIdent,
-				core.TokenTypeIdent,
-				core.TokenRightBrace,
-				core.TokenRightBracket,
-				core.TokenRightParen,
-			) {
-				token := l.tok(core.TokenDot, string(l.eat()))
-				l.anchorPrevious()
-				l.syntheticQueue.Push(l.tok(core.TokenValueIdent, l.eatIdentifier()))
-				return token
-			}
+		case runex.IsDigit(c0) || c0 == '.' && runex.IsDigit(c1):
+			// Numbers are tricky because they can be in different bases and formats.
+			// We need to handle integers, floats, hex, octal and binary numbers.
+			// The following cases are handled:
+			//
+			// - Hexadecimal: 0xFF or 0XFF
+			// - Octal: 0o77 or 0O77
+			// - Binary: 0b11 or 0B11
+			// - Float: 123.45, .45, 123., 123e10, 123.45e10, 123e+10, 123e-10
+			// - Integer: 12345
 
 			// Hexadecimal
-			if c0 == '0' && runes.IsOneOf(c1, 'x', 'X') {
+			if c0 == '0' && runex.IsOneOf(c1, 'x', 'X') {
 				return l.tok(core.TokenHex, l.eatHexadecimal())
 			}
 
 			// Octal
-			if c0 == '0' && runes.IsOneOf(c1, 'o', 'O') {
+			if c0 == '0' && runex.IsOneOf(c1, 'o', 'O') {
 				return l.tok(core.TokenOct, l.eatOctal())
 			}
 
 			// Binary
-			if c0 == '0' && runes.IsOneOf(c1, 'b', 'B') {
+			if c0 == '0' && runex.IsOneOf(c1, 'b', 'B') {
 				return l.tok(core.TokenBin, l.eatBinary())
 			}
 
-			// Float
 			number := l.eatNumber()
-			if strings.Contains(number, ".") || strings.Contains(number, "e") {
-				return l.tok(core.TokenFloat, number)
-			}
+			return l.tok(core.TokenNumber, number)
 
-			// Integer
-			return l.tok(core.TokenInt, number)
-
-		// ------------------------------------------------------------------------
-		// STRING LITERALS
-		// ------------------------------------------------------------------------
-		// Strings can be defined using double quotes (").
-		case runes.IsOneOf(c0, '"'):
+		case runex.IsOneOf(c0, '"'):
 			return l.tok(core.TokenString, l.eatString())
 
-		// ------------------------------------------------------------------------
-		// OPERATORS AND ERROR CASES
-		// ------------------------------------------------------------------------
 		default:
 			s1 := string(c0)
 			s2 := s1 + string(c1)
@@ -292,7 +232,7 @@ func (l *lexer) kindFromLiteral(literal string) core.TokenKind {
 // current cursor position.
 func (l *lexer) span() *core.Span {
 	return &core.Span{
-		Module:     l.module,
+		Script:     l.script,
 		From:       l.previousRune,
 		To:         l.scanner.Cursor(),
 		FromLine:   l.currentLine,
@@ -341,7 +281,7 @@ func (l *lexer) eatSpaces() string {
 	res := ""
 	for {
 		c := l.scanner.Peek()
-		if !runes.IsSpace(c) {
+		if !runex.IsSpace(c) {
 			break
 		}
 		res += string(c)
@@ -356,9 +296,9 @@ func (l *lexer) eatNewlines() string {
 	res := ""
 	for {
 		c := l.scanner.Peek()
-		if runes.IsNewline(c) {
+		if runex.IsNewline(c) {
 			res += string(c)
-		} else if runes.IsSpace(c) {
+		} else if runex.IsSpace(c) {
 			// pass
 		} else {
 			break
@@ -377,13 +317,13 @@ out:
 	for {
 		c := l.scanner.Peek()
 		switch {
-		case runes.IsOneOf(c, '\n'):
+		case runex.IsOneOf(c, '\n'):
 			indent = 0
 			res += string(c)
-		case runes.IsOneOf(c, ';'):
+		case runex.IsOneOf(c, ';'):
 			indent = -1 // disable
 			res += string(c)
-		case runes.IsSpace(c):
+		case runex.IsSpace(c):
 			if indent >= 0 {
 				indent++
 			}
@@ -400,11 +340,11 @@ func (l *lexer) eatComment() string {
 	res := ""
 	for {
 		c := l.eat()
-		if runes.IsOneOf(c, '\r') {
+		if runex.IsOneOf(c, '\r') {
 			continue
 		}
 		res += string(c)
-		if runes.IsOneOf(c, '\n', 0) {
+		if runex.IsOneOf(c, '\n', 0) {
 			break
 		}
 	}
@@ -417,7 +357,7 @@ func (l *lexer) eatIdentifier() string {
 	res := ""
 	for {
 		c := l.scanner.Peek()
-		if !runes.IsAlphaNumeric(c) && c != '_' {
+		if !runex.IsAlphaNumeric(c) && c != '_' {
 			break
 		}
 
@@ -453,7 +393,7 @@ func (l *lexer) eatNumber() string {
 			dot = true
 			res += string(c)
 
-		case runes.IsOneOf(c, 'f', 'F'):
+		case runex.IsOneOf(c, 'f', 'F'):
 			if exp {
 				core.ThrowAt(l.span(), core.ErrorSyntax, "unexpected 'f' character")
 			}
@@ -463,7 +403,7 @@ func (l *lexer) eatNumber() string {
 			l.eat() // ignore the 'f' character
 			return res
 
-		case runes.IsOneOf(c, 'e', 'E'):
+		case runex.IsOneOf(c, 'e', 'E'):
 			if exp {
 				core.ThrowAt(l.span(), core.ErrorSyntax, "unexpected 'e' character")
 			}
@@ -471,12 +411,12 @@ func (l *lexer) eatNumber() string {
 			res += string(c)
 
 			next := l.scanner.PeekAt(1)
-			if runes.IsOneOf(next, '+', '-') {
+			if runex.IsOneOf(next, '+', '-') {
 				l.eat()
 				res += string(next)
 			}
 
-		case runes.IsDigit(c):
+		case runex.IsDigit(c):
 			res += string(c)
 
 		default:
@@ -493,16 +433,16 @@ func (l *lexer) eatHexadecimal() string {
 	res := ""
 	c0 := l.scanner.PeekAt(0)
 	c1 := l.scanner.PeekAt(1)
-	if runes.IsOneOf(c0, 'x', 'X') {
+	if runex.IsOneOf(c0, 'x', 'X') {
 		l.eat()
 	}
-	if runes.IsOneOf(c1, 'x', 'X') {
+	if runex.IsOneOf(c1, 'x', 'X') {
 		l.eat()
 		l.eat()
 	}
 	for {
 		c := l.scanner.Peek()
-		if !runes.IsHexadecimal(c) {
+		if !runex.IsHexadecimal(c) {
 			break
 		}
 		res += string(c)
@@ -517,16 +457,16 @@ func (l *lexer) eatOctal() string {
 	res := ""
 	c0 := l.scanner.PeekAt(0)
 	c1 := l.scanner.PeekAt(1)
-	if runes.IsOneOf(c0, 'o', 'O') {
+	if runex.IsOneOf(c0, 'o', 'O') {
 		l.eat()
 	}
-	if runes.IsOneOf(c1, 'o', 'O') {
+	if runex.IsOneOf(c1, 'o', 'O') {
 		l.eat()
 		l.eat()
 	}
 	for {
 		c := l.scanner.Peek()
-		if !runes.IsOctal(c) {
+		if !runex.IsOctal(c) {
 			break
 		}
 		res += string(c)
@@ -541,16 +481,16 @@ func (l *lexer) eatBinary() string {
 	res := ""
 	c0 := l.scanner.PeekAt(0)
 	c1 := l.scanner.PeekAt(1)
-	if runes.IsOneOf(c0, 'b', 'B') {
+	if runex.IsOneOf(c0, 'b', 'B') {
 		l.eat()
 	}
-	if runes.IsOneOf(c1, 'b', 'B') {
+	if runex.IsOneOf(c1, 'b', 'B') {
 		l.eat()
 		l.eat()
 	}
 	for {
 		c := l.scanner.Peek()
-		if !runes.IsBinary(c) {
+		if !runex.IsBinary(c) {
 			break
 		}
 		res += string(c)
@@ -572,15 +512,15 @@ func (l *lexer) eatString() string {
 	for {
 		c := l.scanner.Peek()
 
-		if runes.IsOneOf(c, '\r') {
+		if runex.IsOneOf(c, '\r') {
 			l.eat()
 			continue
 		}
 
-		if runes.IsEof(c) {
+		if runex.IsEof(c) {
 			core.ThrowAt(l.span(), core.ErrorSyntax, "unexpected end of file")
 			break
-		} else if runes.IsOneOf(c, '\n') {
+		} else if runex.IsOneOf(c, '\n') {
 			core.ThrowAt(l.span(), core.ErrorSyntax, "unexpected new line")
 			break
 		}
@@ -626,12 +566,12 @@ func (l *lexer) eatRawString() string {
 	for {
 		c := l.scanner.Peek()
 
-		if runes.IsOneOf(c, '\r') {
+		if runex.IsOneOf(c, '\r') {
 			l.eat()
 			continue
 		}
 
-		if runes.IsEof(c) {
+		if runex.IsEof(c) {
 			core.ThrowAt(l.span(), core.ErrorSyntax, "unexpected end of file")
 			break
 		}

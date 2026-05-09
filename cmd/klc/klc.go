@@ -1,6 +1,10 @@
 package main
 
-import "github.com/renatopp/go-cli"
+import (
+	"github.com/renatopp/go-cli"
+	"github.com/renatopp/klclang/internal"
+	"github.com/renatopp/klclang/internal/core"
+)
 
 func main() {
 	cli.Name("klc")
@@ -14,16 +18,29 @@ func main() {
 	args := cli.Pos("exprs", "Expressions to evaluate").AsVariadic()
 	cli.Parse()
 
+	runner := internal.NewRunner()
+	runner.PrintLex = lex.Value()
+	runner.PrintParse = parse.Value()
+
 	if len(args.Values()) == 0 {
 		println("This is a REPL mock")
 
 	} else {
-		println("Evaluating expressions:")
-		for _, expr := range args.Values() {
-			println(" -", expr)
+		evaluate(runner, args.Values())
+	}
+}
+
+func run(runner *internal.Runner, path string) {
+
+}
+
+func evaluate(runner *internal.Runner, exprs []string) {
+	for _, expr := range exprs {
+		result, err := runner.Eval([]byte(expr))
+		if err != nil {
+			core.PPrintError(err)
+		} else {
+			println("Result:", result)
 		}
 	}
-
-	println("Lex:", lex.Value())
-	println("Parse:", parse.Value())
 }

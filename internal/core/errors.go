@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/fatih/color"
 	"github.com/renatopp/x/fsx"
@@ -99,6 +100,9 @@ func sprintSyntaxError(err *KlcError) string {
 
 	str := ""
 	lines := fsx.ForceReadFileLines(err.Span.Script.Path)
+	if len(lines) == 0 {
+		lines = strx.Split(string(err.Span.Script.Content), "\n")
+	}
 	fromLine := err.Span.FromLine
 	fromColumn := err.Span.FromColumn
 	toColumn := err.Span.ToColumn
@@ -116,11 +120,11 @@ func sprintSyntaxError(err *KlcError) string {
 	}
 
 	sprintMainLine := func(line string) string {
-		println("LINE:", strx.Escape(line))
-		println("FROMLINE:", fromLine, "TOLINE:", err.Span.ToLine)
-		println("FROMCOLUMN:", fromColumn, "TOCOLUMN:", toColumn)
-		before := line[:fromColumn-2]
-		middle := line[fromColumn-2 : toColumn]
+		if line == "" {
+			return ""
+		}
+		before := line[:max(0, fromColumn-2)]
+		middle := line[max(0, fromColumn-2):toColumn]
 		after := ""
 		if toColumn-1 < len(line) {
 			after = line[toColumn:]
@@ -128,16 +132,17 @@ func sprintSyntaxError(err *KlcError) string {
 		return before + cu.Sprint(middle) + after
 	}
 
-	ident := strx.Ident("", len(sprintNumber(fromLine+1)))
+	ident := strx.Indent("", len(sprintNumber(fromLine+1)))
+	columnSpan := max(1, toColumn-fromColumn)
 
 	str += fmt.Sprintf("%s: %s\n", ce(strx.ToUpper(string(err.Kind))), strx.Escape(err.Message))
 	str += "\n"
 	str += fmt.Sprintf("%s┌─[%s]\n", ident, cf("%s:%d:%d", err.Span.Script.Path, fromLine, fromColumn))
 	str += fmt.Sprintf("%s|\n", ident)
-	str += fmt.Sprintf("%s|    %s\n", sprintNumber(fromLine-1), sprintLine(fromLine-1))
+	// str += fmt.Sprintf("%s|    %s\n", sprintNumber(fromLine-1), sprintLine(fromLine-1))
 	str += fmt.Sprintf("%s|    %s\n", sprintNumber(fromLine), sprintMainLine(sprintLine(fromLine)))
-	// str += fmt.Sprintf("%s|    %s\n", ident, (strings.Repeat(" ", fromColumn-1) + strings.Repeat("^", columnSpan)))
-	str += fmt.Sprintf("%s|    %s\n", sprintNumber(fromLine+1), sprintLine(fromLine+1))
+	str += fmt.Sprintf("%s|    %s\n", ident, (strings.Repeat(" ", fromColumn-2) + strings.Repeat("^", columnSpan)))
+	// str += fmt.Sprintf("%s|    %s\n", sprintNumber(fromLine+1), sprintLine(fromLine+1))
 	str += fmt.Sprintf("%s└    \n", ident)
 	str += "\n"
 
