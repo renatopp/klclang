@@ -9,6 +9,9 @@ const (
 	TokenDedent         TokenKind = "dedent"           // python-like indentation tokens
 	TokenSeparator      TokenKind = "separator"        // \n or ;
 	TokenImport         TokenKind = "import"           // import
+	TokenIf             TokenKind = "if"               // if
+	TokenThen           TokenKind = "then"             // then
+	TokenElse           TokenKind = "else"             // else
 	TokenAssign         TokenKind = "assign"           // =
 	TokenLeftParen      TokenKind = "left-paren"       // (
 	TokenRightParen     TokenKind = "right-paren"      // )
@@ -49,6 +52,9 @@ const (
 var TokenKindMap = map[string]TokenKind{
 	"#":      TokenComment,
 	"import": TokenImport,
+	"if":     TokenIf,
+	"then":   TokenThen,
+	"else":   TokenElse,
 	"(":      TokenLeftParen,
 	")":      TokenRightParen,
 	"+":      TokenPlus,

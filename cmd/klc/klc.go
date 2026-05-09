@@ -4,6 +4,7 @@ import (
 	"github.com/renatopp/go-cli"
 	"github.com/renatopp/klclang/internal"
 	"github.com/renatopp/klclang/internal/core"
+	"github.com/renatopp/x/fsx"
 )
 
 func main() {
@@ -30,15 +31,19 @@ func main() {
 	}
 }
 
-func run(runner *internal.Runner, path string) {
-
-}
-
 func evaluate(runner *internal.Runner, exprs []string) {
+	var result any
+	var err error
 	for _, expr := range exprs {
-		result, err := runner.Eval([]byte(expr))
+		if fsx.IsFile(expr) {
+			result, err = runner.Run(expr)
+		} else {
+			result, err = runner.Eval([]byte(expr))
+		}
+
 		if err != nil {
 			core.PPrintError(err)
+			continue
 		} else {
 			println("Result:", result)
 		}

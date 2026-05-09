@@ -1,12 +1,11 @@
 package internal
 
 import (
-	"os"
-	"text/tabwriter"
-
 	"github.com/renatopp/klclang/internal/core"
 	"github.com/renatopp/klclang/internal/frontend"
-	"github.com/renatopp/x/logx"
+	"github.com/renatopp/klclang/internal/utils"
+	"github.com/renatopp/x/fsx"
+	"github.com/renatopp/x/strx"
 )
 
 type Runner struct {
@@ -34,27 +33,46 @@ func NewRunner() *Runner {
 }
 
 func (r *Runner) Run(path string) (any, error) {
-
-	return nil, nil
-}
-
-func (r *Runner) Eval(content []byte) (any, error) {
-	r.memory.Content = content
-
-	tokens, err := frontend.Lex(r.memory, content)
+	content, err := fsx.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
 
-	writer := tabwriter.NewWriter(os.Stdout, 1, 2, 1, ' ', 0)
-	writer.Write([]byte("(LINE,COLUMN)\tKIND\tLITERAL\n"))
-	if r.PrintLex {
-		for _, token := range tokens {
-			s := logx.Sprintln("(%d,%d)\t%s\t%q", token.Span.FromLine, token.Span.FromColumn, token.Kind, token.Literal)
-			writer.Write([]byte(s))
-		}
+	script := &core.Script{
+		CanonicalName: path,
+		Path:          path,
+		Content:       content,
 	}
-	writer.Flush()
+
+	return r.eval(script)
+}
+
+func (r *Runner) Eval(content []byte) (any, error) {
+	r.memory.Content = content
+	return r.eval(r.memory)
+}
+
+func (r *Runner) eval(script *core.Script) (any, error) {
+	// LEXING
+	//
+	tokens, err := frontend.Lex(script, script.Content)
+	if err != nil {
+		return nil, err
+	}
+
+	table := utils.NewTableWriter("POS", "KIND", "LITERAL")
+	table.Title("LEXER")
+	for _, token := range tokens {
+		table.Write(
+			strx.Format("(%d,%d)", token.Span.FromLine, token.Span.FromColumn),
+			strx.Format("%s", token.Kind),
+			strx.Format("%q", token.Literal),
+		)
+	}
+	println(table.Render())
+
+	// PARSING
+	//
 
 	return nil, nil
 }

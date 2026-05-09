@@ -1,0 +1,3 @@
+fun(n) = 
+  a = 3; another
+  a * n

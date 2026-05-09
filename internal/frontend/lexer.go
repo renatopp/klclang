@@ -82,7 +82,11 @@ func (l *lexer) next() *core.Token {
 		case runex.IsSpace(c0):
 			l.eatSpaces()
 
-		case runex.IsOneOf(c0, '\n', ';'):
+		case runex.IsOneOf(c0, ';'):
+			sep := l.eatSeparator()
+			return l.tok(core.TokenSeparator, sep)
+
+		case runex.IsOneOf(c0, '\n'):
 			sep, indent := l.eatSeparators()
 
 			// indent increase
@@ -305,6 +309,16 @@ func (l *lexer) eatNewlines() string {
 
 		}
 		l.eat()
+	}
+	return res
+}
+
+func (l *lexer) eatSeparator() string {
+	res := ""
+	c0 := l.scanner.PeekAt(0)
+	for c0 == ';' {
+		res += string(l.eat())
+		c0 = l.scanner.PeekAt(0)
 	}
 	return res
 }
