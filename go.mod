@@ -5,7 +5,7 @@ go 1.26.2
 require (
 	github.com/fatih/color v1.19.0
 	github.com/renatopp/go-cli v0.1.1
-	github.com/renatopp/x v0.0.2
+	github.com/renatopp/x v0.0.3
 )
 
 require (

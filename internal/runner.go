@@ -1,9 +1,10 @@
 package internal
 
 import (
+	"time"
+
 	"github.com/renatopp/klclang/internal/core"
 	"github.com/renatopp/klclang/internal/frontend"
-	"github.com/renatopp/klclang/internal/utils"
 	"github.com/renatopp/x/fsx"
 	"github.com/renatopp/x/strx"
 )
@@ -55,21 +56,28 @@ func (r *Runner) Eval(content []byte) (any, error) {
 func (r *Runner) eval(script *core.Script) (any, error) {
 	// LEXING
 	//
+	start := time.Now()
 	tokens, err := frontend.Lex(script, script.Content)
 	if err != nil {
 		return nil, err
 	}
 
-	table := utils.NewTableWriter("POS", "KIND", "LITERAL")
-	table.Title("LEXER")
-	for _, token := range tokens {
-		table.Write(
-			strx.Format("(%d,%d)", token.Span.FromLine, token.Span.FromColumn),
-			strx.Format("%s", token.Kind),
-			strx.Format("%q", token.Literal),
-		)
+	if r.PrintLex {
+		table := strx.NewTable()
+		table.MetaSection("LEXER")
+		table.Meta("POS", "KIND", "LITERAL")
+		for _, token := range tokens {
+			table.Data(
+				strx.Format("(%d,%d)", token.Span.FromLine, token.Span.FromColumn),
+				strx.Format("%s", token.Kind),
+				strx.Format("%q", token.Literal),
+			)
+		}
+		table.MetaSection(
+			strx.Format("Elapsed: %d ms", time.Since(start).Milliseconds()),
+		).ToLeft()
+		println(table.Render())
 	}
-	println(table.Render())
 
 	// PARSING
 	//
