@@ -1,10 +1,58 @@
 @import 'modern-normalize/modern-normalize.css';
 
 $nav-width: 290px;
+$spacing-1: 4px;
+$spacing-2: 8px;
+$spacing-3: 16px;
+$spacing-4: 24px;
+$spacing-5: 32px;
 
+@font-face{
+  font-family: "Menlo";
+  src:local("Menlo-Regular"),
+  url('./assets/fonts/Menlo-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Menlo";
+  src:local("Menlo-Bold"),
+  url('./assets/fonts/Menlo-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Menlo";
+  src:local("Menlo-Italic"),
+  url('./assets/fonts/Menlo-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: "Menlo";
+  src:local("Menlo-BoldItalic"),
+  url('./assets/fonts/Menlo-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+}
+
+:root {
+  --font-mono: "Menlo", monospace;
+  --color-text: #6b6375;
+  --color-highlight: #4daaeb;
+  --color-bg: #fe9f9f;
+  --color-border: #e5e4e7;
+}
 
 html {
   height: 100%;
+  font-family: var(--font-mono);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}
+::selection {
+  background-color: var(--color-highlight);
+  color: var(--color-bg);
 }
 body {
   display: flex;
@@ -12,12 +60,16 @@ body {
 }
 
 nav {
+  display: flex;
+  flex-direction: column;
   // flex: 1;
-  background-color: blue;
+  // background-color: blue;
   min-width: $nav-width;
   width: $nav-width;
   max-width: $nav-width;
   height: 100%;
+  padding: $spacing-5;
+  text-align: right;
 }
 
 main {
@@ -26,7 +78,28 @@ main {
   height: 100%;
 }
 
+a {
+  color: var(--color-text);
+  text-decoration: none;
+  &:hover {
+    background-color: var(--color-highlight);
+    color: var(--color-bg);
+  }
+  padding: $spacing-1 $spacing-2;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  margin-bottom: $spacing-2;
+}
 
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.spacer {
+  flex: 1 1 100%;
+}
 
 // :root {
 //   --text: #6b6375;
